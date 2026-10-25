@@ -3,9 +3,10 @@
 **How these labels were made.** Claude (Anthropic's AI model, used in Claude Code) labelled 497 of the 500 rows at
 my request. It read every document in full and wrote the evidence and the notes. I labelled 3 rows myself:
 `5f35a70c444aa76f`, `dfca849b43c8a487` and `e7b4e0ef6f12fe8a`. Later, at my request, Claude added C2 to
-`dfca849b43c8a487` and C1 to `e7b4e0ef6f12fe8a`, so that they follow the same rules as the other rows. The note on
-each of these two rows says so. Claude also wrote the medicine code in this sheet and ran the checks on the pack.
-Where this sheet says "my labels", it means all 500 rows.
+`dfca849b43c8a487` and C1 to `e7b4e0ef6f12fe8a`, so that they follow the same rules as the other rows. After the lab
+ruling of 25 Oct on repeated passages, Claude also changed `5f35a70c444aa76f` from clean to fix (C2). The note on each
+of these three rows says so. Claude also wrote the medicine code in this sheet and ran the checks on the pack. Where
+this sheet says "my labels", it means all 500 rows.
 
 One section for each disease that my labels show more than five times. Each section has the tested code. The helper functions in `kn_rules.py` are at the end, so every function runs on its own.
 
@@ -146,8 +147,8 @@ def clean(t):
 
 3. **Action:** Fix: replace each such visarga with ':' and remove the space after each such dot.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only G4`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
    Note: the rule changes more than half of this pack. If the gold readers did not count a colon-visarga as a disease, the gold set will contain it too, and this medicine will change more than 1% of it by design. I will ask in CAP whether that counts as harm.
 
 5. **Side effects:**
@@ -194,8 +195,8 @@ def clean(t):
 
 3. **Action:** Fix: remove those lines.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only C1`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A real list item that starts with '- News', '- Sports' or '- #' would be removed.
@@ -232,8 +233,8 @@ def clean(t):
 
 3. **Action:** Fix: remove the unfinished sentence.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only C3`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A last line that is a list or an address with no full stop is cut (a press-office address in c713689df252717f; a keyword list in 7b1751ffb7f20ff0).
@@ -261,8 +262,8 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only B4`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A text about programming that shows \n on purpose would change.
@@ -270,7 +271,7 @@ def clean(t):
 
 ## Medicine 5: A6, look-alike characters for Kannada signs
 
-1. **Disease:** A6. My labels: 18 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (37 characters); 15 of them are documents that I labelled A6. Text typed or converted from PDF uses a look-alike character for a Kannada sign: the Kannada digit zero ೦ (U+0CE6) or the ASCII digit 0 for the anusvara ಂ (U+0C82), as in ಇ೦ಥಾ and ಸಂಭ0ದ, and the Latin letter s for the avagraha ಽ (U+0CBD) in Sanskrit, as in ತಮೋsಧ್ಯಾಯಃ.
+1. **Disease:** A6. My labels: 19 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (37 characters); 15 of them are documents that I labelled A6. Text typed or converted from PDF uses a look-alike character for a Kannada sign: the Kannada digit zero ೦ (U+0CE6) or the ASCII digit 0 for the anusvara ಂ (U+0C82), as in ಇ೦ಥಾ and ಸಂಭ0ದ, and the Latin letter s for the avagraha ಽ (U+0CBD) in Sanskrit, as in ತಮೋsಧ್ಯಾಯಃ.
    Three examples:
    - `0fddd312da4d1f53` at 702: `ಸಂಭ0ದದಲ್ಲಿ` → `ಸಂಭಂದದಲ್ಲಿ` (0030 → 0C82)
    - `af897fd315bd2a8b` at 1150: `ಬ೦ದ` → `ಬಂದ` (0CE6 → 0C82)
@@ -297,8 +298,8 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only A6`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A number written in Kannada digits right after a word with no space (ಪುಟ೦) would change; I did not see this in the pack.
@@ -306,7 +307,7 @@ def clean(t):
 
 ## Medicine 6: C2, the same line twice in one document
 
-1. **Disease:** C2. My labels: 33 of 500 labelled documents. In the whole pack the rule finds 11 of 500 documents (23 lines); 10 of them are documents that I labelled C2. News pages often repeat the opening paragraph at the end, or a heading twice.
+1. **Disease:** C2. My labels: 34 of 500 labelled documents. In the whole pack the rule finds 11 of 500 documents (23 lines); 10 of them are documents that I labelled C2. News pages often repeat the opening paragraph at the end, or a heading twice.
    Three examples:
    - `dfca849b43c8a487` at 1411: line `ಮಂಗಳೂರುಃ ಕರ್ನಾಟಕದಲ್ಲಿ ತೌಕ್ತೆ ಚಂಡಮಾರುತದಿಂದ ಸಂಭವಿಸಿದ ಹಾನಿಗೆ ರಾ ...` comes back at 1411
    - `f8849202ab1a46be` at 1860: line `ಬೋಗಿಗಳುಃ ಎಸಿ-2 ಟೈರ್ ಬೋಗಿ ಒಂದು, ಎಸಿ-3 ಟೈರ್ ಬೋಗಿ ಮೂರು, 8 ಸ್ಲೀಪ ...` comes back at 1860
@@ -328,8 +329,8 @@ def clean(t):
 
 3. **Action:** Fix: remove the repeats.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only C2`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - Song refrains, poems and lists that repeat a line on purpose lose the repeats. In this pack: the coach list of two trains that have the same coaches (f8849202ab1a46be).
@@ -367,8 +368,8 @@ def clean(t):
 
 3. **Action:** Fix: remove the English block.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only C4`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - An English footer or disclaimer at the end is also removed. That is boilerplate (C1), so the change is still right, but it is not C4 (three documents in this pack).
@@ -396,8 +397,8 @@ def clean(t):
 
 3. **Action:** Drop. The way back from these fonts depends on the font, so a safe fix is not possible.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only A3`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A good document with a single leftover letter is lost.
@@ -424,8 +425,8 @@ def clean(t):
 
 3. **Action:** Drop. A document with one or two such signs is kept.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only G1`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - Documents with one or two broken signs keep them. My labels show G1 in 32 documents; most are a misplaced reph (ಜಾಜ್ರ್ for ಜಾರ್ಜ್, ಮಾಚ್ರ್ for ಮಾರ್ಚ್) or a few lost vowel signs in PDF text, which I marked fix, not drop. The rule drops the 3 documents where the damage is dense.
@@ -454,8 +455,8 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only C5`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - A poem, a song or a short list-style notice with 8 or more lines would be dropped. Kannada verse lines have no full stop, so verse is the main risk; in this pack the rule drops no verse.
@@ -487,8 +488,8 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. The Kannada gold set from Data A and Data B is not out yet. Run `python diag-tools/medicine.py harm <gold set> --only D4`, then write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 106 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
    - The rule is weak: my labels show D4 in 30 documents and it finds 1 of them. Most bad translation shows only in the meaning. A scale filter needs a model, for example the perplexity of a Kannada language model or a round-trip translation score; I give the rule as a safe first step.

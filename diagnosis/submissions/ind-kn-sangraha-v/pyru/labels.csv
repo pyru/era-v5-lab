@@ -1,5 +1,5 @@
 doc_id,read,verdict,diseases,evidence,hex,note
-5f35a70c444aa76f,full,clean,,,,
+5f35a70c444aa76f,full,fix,C2,C2 'ನಗರದ ಕುಮಾರಸ್ವಾಮಿ ದೇವಸ್ಥಾನದ ಮುಖ್ಯರಸ್ತೆ ಬಳಿ' at 0 (x2),,opening paragraph repeated after the dateline; changed from clean to C2 by Claude under the lab ruling of 25 Oct
 dfca849b43c8a487,full,fix,G4;C2,G4 visarga for colon 'ಮಂಗಳೂರುಃ' at 7 (x2); C2 line 'ಮಂಗಳೂರುಃ ಕರ್ನಾಟಕದಲ್ಲಿ ತೌಕ್ತೆ ಚಂಡಮಾರುತದಿಂ' at 0 repeated x2,G4: 0CC1 0C83,opening paragraph repeated at the end; C2 added by Claude at my request
 7fac134a42e5209e,full,fix,G4,G4 visarga for colon 'ಶಿವಮೊಗ್ಗಃ' at 8 (x1),G4: 0C97 0C83,dateline colon written as visarga
 57ce2d9b66db5303,full,clean,,,,read in full
@@ -240,7 +240,7 @@ d73a1189022ca612,full,clean,,,,"read in full; the writer spaced out sensitive wo
 66a8e7e8a631b67c,full,clean,,,,read in full
 ba05b870e075775a,full,fix,C1;G4,C1 '- 5 hrs ago Maruti Suzuki' at 0; G4 visarga for colon 'ಕಾರುಃ' at 233 (x2),G4: 0CC1 0C83,"DriveSpark 'hrs ago' and Don't Miss! link blocks at the top (link colons as visarga); dot split in decimals (1. 16, 1. 28); spaced punctuation; typos"
 9c9232a57fa26725,full,clean,,,,read in full
-911d5a63a36beb09,full,drop,G1;C3;D3,G1 broken sign in 'ಸಾಧ್ಯಂಗಳೆಂಬಸಮಸ್ತ(ಗ)ಾಂಮ್ಯವನುಪುತ್ರಪೌತ' at 778 (x1); C3 ends with 'ಸೇವಿತರಾದಶಿ ವತ್ಸಗೋತ್ರದಆಪಸ್ತಂಭಸೂ' at 1511; D3 'ಹರೇರ್ಲಿಲಾವರಾಹಸ್ಯದಂಷ್ಟಾ' at 198,G1: 0C97 0029 0CBE,"OCR garble of an inscription catalogue: run-together words, stray brackets and line numbers inside words; Sanskrit verses; ends mid-word; dropped as unreadable (no code for OCR noise); the G4 hint is a real visarga"
+911d5a63a36beb09,full,drop,G1;C3;D3;A6,G1 broken sign in 'ಸಾಧ್ಯಂಗಳೆಂಬಸಮಸ್ತ(ಗ)ಾಂಮ್ಯವನುಪುತ್ರಪೌತ' at 778 (x1); C3 ends with 'ಸೇವಿತರಾದಶಿ ವತ್ಸಗೋತ್ರದಆಪಸ್ತಂಭಸೂ' at 1511; D3 'ಹರೇರ್ಲಿಲಾವರಾಹಸ್ಯದಂಷ್ಟಾ' at 198; A6 '೧88' at 309,G1: 0C97 0029 0CBE | A6: 0CE7 0038 0038,"OCR garble of an inscription catalogue: run-together words, stray brackets and line numbers inside words; Sanskrit verses; ends mid-word; dropped as unreadable (no code for OCR noise); the G4 hint is a real visarga; one number mixes Kannada and Latin digits (A6, lab ruling of 25 Oct)"
 e4cd46beca6887ad,full,clean,,,,read in full
 59482dca295d8d6a,full,drop,D5;C1,D5 'ಭ್ರೂಣದ ಬೆಳವಣಿಗೆ ಮತ್ತು ಬೆಳವಣಿಗೆಗೆ' at 46; C1 'Thanks For Reading!' at 1177,,machine-translated health text with doubled words; footer line
 cda8a7fb4c34da99,full,fix,A6;C1;C3;D3;G1,A6 'ಯೋsಯಂ' at 796; C1 'ಸಾಯಣಧಾನ್ಯ ಸಹಿತಾ' at 8206; C3 ends with 'ೊಬ್ಬ ಕುರುಡನು ಮಾರ್ಗದರ್ಶಕನನ್ನಾಗಿ' at 10112; D3 'Three-fourths of Purusha ascended' at 225; G1 broken sign in 'ದೇಹಾಂತರ್ವತಿ್ರಯಾಗಿ' at 7951 (x1),A6: 0CAF 0CCB 0073 0CAF 0C82 | G1: 0CA4 0CBF 0CCD,"PDF Purusha Sukta commentary page: Sanskrit quotations, Kannada explanation and an English translation; Latin s as avagraha and Kannada digit zero for anusvara; a misplaced reph (ವತಿ್ರ); running header mid-text; ends mid-sentence; visargas are genuine (G4 hint is Sanskrit nominatives); OCR slips in the Sanskrit"
@@ -465,7 +465,7 @@ f8a015e3eca2c954,full,fix,A6;C1;G1;D3,A6 'ಹರಿಣೋsಪಿ' at 1097; C1 '1
 7b75879073dd0b4a,full,clean,,,,read in full
 81f295c7fafbae82,full,fix,C1,C1 'Don't Miss!' at 0,,Don't Miss! link block at the top
 bfa515af708bf5c9,full,fix,G4;C1,G4 visarga for colon 'ಡೆಸ್ಕ್ಃ' at 23 (x1); C1 'ಹೊಸದಿಗಂತ ಡಿಜಿಟಲ್ ಡೆಸ್ಕ್' at 0,G4: 0CCD 0C83,desk byline; its colon written as visarga after a virama
-af0dd5ceca7b74ab,full,fix,C1;G4;F1,C1 'A post shared by' at 1165; G4 visarga for colon 'ಓದಿಃ' at 1432 (x2); F1 social media handle of a private person at offset 1196,G4: 0CBF 0C83,Instagram embed line with a private person's handle; two read-also lines (colons as visarga); dot split in a number and in the handle; English glosses
+af0dd5ceca7b74ab,full,fix,C1;G4,C1 'A post shared by' at 1165; G4 visarga for colon 'ಓದಿಃ' at 1432 (x2),G4: 0CBF 0C83,"Instagram embed line with a private person's handle (a username, not F1 under the lab ruling of 25 Oct); two read-also lines (colons as visarga); dot split in a number and in the handle; English glosses"
 7be545b53cc40e6a,full,fix,G4,G4 visarga for colon 'ಬೆಳ್ತಂಗಡಿಃ' at 9 (x1),G4: 0CBF 0C83,dateline colon as visarga
 821aedd113d19fb8,full,fix,C1;G4,C1 '19 min ago ಶಿವಸೇನೆ' at 0; G4 visarga for colon 'ಟಿಪ್ಸ್ಃ' at 203 (x1),G4: 0CCD 0C83,related-headline block at the top; a link colon as visarga; ಘೋಷಣೆಯಾಂದಿಗೆ for ಘೋಷಣೆಯೊಂದಿಗೆ (note)
 d596aba366b10a32,full,fix,G4,G4 visarga for colon 'ಮೂಡುಬಿದಿರೆಃ' at 10 (x1),G4: 0CC6 0C83,dateline colon as visarga
