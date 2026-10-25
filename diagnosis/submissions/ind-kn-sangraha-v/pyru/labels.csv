@@ -359,12 +359,12 @@ dda6146c661da8a7,full,fix,C1;G4,C1 '- 32 min ago LinkedIn scams' at 0; G4 visarg
 a05b52f4e1d2becf,full,fix,C1;G4,C1 '(www. vknews. in)' at 0; C1 'Copyright' at 485; G4 'www. vknews' at 1,G4: 0077 0077 0077 002E 0020 0076 006B 006E 0065 0077 0073,site URL at the start and copyright footer; dot split in a number or URL
 f8849202ab1a46be,full,fix,G4,G4 visarga for colon 'ನಿಲ್ದಾಣಃ' at 899 (x5),G4: 0CA3 0C83,subheading colons as visarga; dot split in clock times (x4); the repeated coach line belongs to two different trains (not C2)
 3a1519b395227cc1,full,fix,G4;A3,G4 visarga for colon 'ಕಲಬುರಗಿಃ' at 7 (x1); A3 '೩ಞg' at 745,G4: 0CBF 0C83 | A3: 0CE9 0C9E 0067,dateline colon as visarga; one font-conversion artifact where 3 kg should be
-a31dbea5a0d6b216,full,fix,B4;C1;G4,B4 literal '\n' at 113 (x16); C1 '- Kannada Oneindia' at 95; G4 'ಸ್ಥಿರಾಸ್ತಿ ಮಾರ್ಗದರ್ಶಿ ದರಃ' at 0 (x2),G4: 0CB8 0CCD 0CA5 0CBF 0CB0 0CBE 0CB8 0CCD 0CA4 0CBF 0020 0CAE,"site title with English slug, a related headline, keyword tag line and English summary; literal backslash-n; title colon as visarga"
+a31dbea5a0d6b216,full,fix,B4;C1;G4;C4,B4 literal '\n' at 113 (x16); C1 '- Kannada Oneindia' at 95; G4 'ಸ್ಥಿರಾಸ್ತಿ ಮಾರ್ಗದರ್ಶಿ ದರಃ' at 0 (x2); C4 'Citizens of Bengaluru have opposed' at 2368,G4: 0CB8 0CCD 0CA5 0CBF 0CB0 0CBE 0CB8 0CCD 0CA4 0CBF 0020 0CAE,"site title with English slug, a related headline and keyword tag line; literal backslash-n; title colon as visarga; English summary of the story appended at the end"
 f3f8d845dc300abd,full,fix,G4;C1;F1,"G4 visarga for colon 'ಬೆಂಗಳೂರುಃ' at 8 (x1); C1 'Oneindia ಬ್ರೇಕಿಂಗ್ ನ್ಯೂಸ್' at 573; F1 phone at offset 483, 496",G4: 0CC1 0C83,dateline colon as visarga; site footer; contact phone numbers of a named person
 9faa1d2d415493ec,full,clean,,,,read in full
 8f9b8396b6fad625,full,fix,C1,C1 'Don't Miss!' at 0,,"Don't Miss! link block at the top; news about an actor's offensive remark (word masked with an asterisk), not F3"
 a8d8b182609ea5c2,full,fix,G4;C1,G4 visarga for colon 'ದುಷ್ಮನಿಃ' at 13 (x2); C1 'ಸಿಎಎ ವಿರೋಧಿಸಿದ ದೇಶದಿಂದ 'ಎಣ್ಣೆ' ಆಮದು ನಿಲ್ಲಿಸಿದ ಭಾರತಃ' at 475,G4: 0CBF 0C83,headline colons as visarga; two related-article headlines inside the text
-97b398d6bc37b2b4,full,fix,C1,C1 'Nagara Panchami is celebrated in Karnataka' at 2315,,English SEO summary at the end
+97b398d6bc37b2b4,full,fix,C4,C4 'Nagara Panchami is celebrated in Karnataka' at 2315,,English summary of the story appended at the end
 c6a14dd582b0c493,full,fix,C1,C1 'RRR : Natu Natu created history.' at 1148,,English slug line at the end
 e60f55b60d018882,full,drop,C5;C1;G4,"C5 'ಹಣ್ಣು, ತರಕಾರಿ ಬೆಳೆದ ರೈತರು ಪರಿಹಾರ' at 621; C1 'To Start receiving timely alerts' at 0; G4 visarga for colon 'ಚುನಾವಣೆಃ' at 687 (x5)",G4: 0CC6 0C83,"no article: English browser-notification help, then a list of 27 headlines (colons as visarga) and a notification prompt"
 2f7a77b1adc5c6ba,full,clean,,,,read in full
@@ -433,7 +433,7 @@ f40778b9d57dcf60,full,fix,G4,G4 visarga for colon 'ನೋಡಬಹುದುಃ' 
 cfabab384bd4cf2d,full,clean,,,,read in full
 ca286f5504edc013,full,fix,G4,G4 visarga for colon 'ರೋಣಃ' at 3 (x1),G4: 0CA3 0C83,dateline colon written as visarga
 9b9774f0db31600a,full,fix,C1,"C1 'ಎಂ.ಎಂ.ಕಲಬುರ್ಗಿ ಹತ್ಯೆಯಾಗಿ 2ವರ್ಷ, ಹಂತಕರು ಯಾರು?' at 923",,related headline inserted in the text
-539c9547508b5f0f,full,fix,C1,C1 'Sports ಅಜಿಂಕ್ಯ ರಹಾನೆ' at 0,,related headline with category at the top; broken English SEO summary at the end
+539c9547508b5f0f,full,fix,C1;C4,C1 'Sports ಅಜಿಂಕ್ಯ ರಹಾನೆ' at 0; C4 'A Supreme Court Lawyer Rajeev Kumar Ranjan' at 1570,,related headline with category at the top; English summary of the story appended at the end
 ea4d6217a05478bf,full,fix,G4;G1,G4 visarga for colon 'ಬೆಳಗಾವಿಃ' at 7 (x3); G1 'ಮನು ಸ್ಮತಿ' at 1116,G4: 0CBF 0C83 | G1: 0CAE 0CA8 0CC1 0020 0CB8 0CCD 0CAE 0CA4 0CBF,"dateline and subheading colons as visarga; vowel sign ೃ lost in ಸ್ಮೃತಿ (x3), text otherwise sound"
 1f232c482fa0b600,full,fix,G4,G4 visarga for colon 'ಮುಂಬೈಃ' at 5 (x1),G4: 0CC8 0C83,dateline colon written as visarga
 0fb02c951978c272,full,clean,,,,read in full

@@ -158,7 +158,7 @@ def clean(t):
 
 ## Medicine 2: C1, boilerplate lines
 
-1. **Disease:** C1. My labels: 198 of 500 labelled documents. In the whole pack the rule finds 97 of 500 documents (257 lines); 97 of them are documents that I labelled C1. News and blog pages left their page furniture in the text: the Oneindia link block ('Don't Miss!', '- News ...', '- 2 hrs ago ...', '- #tag ...'), 'ಇದನ್ನೂ ಓದಿ:' (also read) lines, the Prajavani 'follow us on Facebook' line, share and like prompts, desk lines, comment policies, breadcrumbs, bylines and Instagram embed lines.
+1. **Disease:** C1. My labels: 197 of 500 labelled documents. In the whole pack the rule finds 97 of 500 documents (257 lines); 97 of them are documents that I labelled C1. News and blog pages left their page furniture in the text: the Oneindia link block ('Don't Miss!', '- News ...', '- 2 hrs ago ...', '- #tag ...'), 'ಇದನ್ನೂ ಓದಿ:' (also read) lines, the Prajavani 'follow us on Facebook' line, share and like prompts, desk lines, comment policies, breadcrumbs, bylines and Instagram embed lines.
    Three examples:
    - `46e7b0e4e20a9f23` at 0: line `Don't Miss!` removed
    - `59482dca295d8d6a` at 1176: line `Thanks For Reading!` removed
@@ -337,7 +337,7 @@ def clean(t):
 
 ## Medicine 7: C4, two texts joined
 
-1. **Disease:** C4. My labels: 17 of 500 labelled documents. In the whole pack the rule finds 6 of 500 documents (6 documents); 3 of them are documents that I labelled C4. Two unrelated texts stand in one document with no boundary. In this pack: news roundups and tag pages with many unrelated teasers, two blog posts joined, and the English source story joined to the end of the Kannada story.
+1. **Disease:** C4. My labels: 20 of 500 labelled documents. In the whole pack the rule finds 6 of 500 documents (6 documents); 6 of them are documents that I labelled C4. Two unrelated texts stand in one document with no boundary. In this pack: news roundups and tag pages with many unrelated teasers, two blog posts joined, and an English source story or summary joined to the end of the Kannada story. I count the English block as a joined text even when it covers the same story: it is a second text in another language with no boundary.
    Three examples:
    - `c254933676831bf1` at 1624: English block removed: `NEW DELHI: It has now become easier to transfer money t ...`
    - `a31dbea5a0d6b216` at 2351: English block removed: `Citizens of Bengaluru have opposed new property guidanc ...`
