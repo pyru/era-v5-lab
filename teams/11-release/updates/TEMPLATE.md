@@ -56,7 +56,7 @@ How to fill it:
 - [ ] `check_style.py` gives 0 errors
 - [ ] Every number in the text has TSAI approval
 - [ ] Every person named has signed the consent form
-- [ ] Nothing from the internal list in `policy/public_internal.md`
+- [ ] Nothing from the internal list in `public_internal.md`
 - [ ] Raj reviewed the pull request
 - [ ] Sent to TSAI on: <DD Mon YYYY>
 - [ ] TSAI approved on: <DD Mon YYYY>

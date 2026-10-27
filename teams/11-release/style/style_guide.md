@@ -38,9 +38,9 @@ The banned words (run `check_style.py --list` for the current list):
 
 ## Rules a reviewer checks
 
-5. **Numbers need TSAI approval.** Ask TSAI before you publish any number. See `policy/public_internal.md`.
+5. **Numbers need TSAI approval.** Ask TSAI before you publish any number. See `public_internal.md`.
 6. **Say what we did.** Write about work that is done. Do not promise dates, sizes or results.
-7. **Names need consent.** Name a person only if they signed `policy/consent_form.md`. Use the name the way
+7. **Names need consent.** Name a person only if they signed `consent_form.md`. Use the name the way
    they chose.
 8. **Plain words.** Write "use", not "make use of". Write "start", not "commence". Write "about", not
    "approximately".
