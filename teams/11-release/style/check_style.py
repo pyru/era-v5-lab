@@ -11,7 +11,8 @@ Usage:
     python check_style.py --list          # print the banned words
     python check_style.py --self-test     # the test file must give exactly 4 errors
 
-Exit code: 0 when there are no errors, 1 otherwise (also when a path does not exist).
+Exit code: 0 when there are no errors, 1 otherwise. A path that does not exist, or a file that cannot be read,
+counts as an error; the other paths are still checked.
 --numbers also lists every number as a warning: each number needs TSAI approval before it is published.
 List markers such as "1." are not numbers.
 Banned words are not checked inside code blocks, inline code, URLs and link targets.
@@ -126,13 +127,16 @@ def check_text(text, max_words=25, numbers=False):
     return sorted(out)
 
 def files_of(paths):
+    """Yield (path, found): every .md and .txt file under a folder, a file as given, and a missing path with False."""
     for p in paths:
         if os.path.isdir(p):
             for root, _, names in os.walk(p):
                 for name in sorted(names):
-                    if name.endswith((".md", ".txt")): yield os.path.join(root, name)
+                    if name.endswith((".md", ".txt")): yield os.path.join(root, name), True
+        elif os.path.isfile(p):
+            yield p, True
         else:
-            yield p
+            yield p, False
 
 def self_test():
     here = os.path.dirname(os.path.abspath(__file__))
@@ -174,14 +178,17 @@ def main():
         return self_test()
     if not a.paths:
         ap.error("give at least one file or folder")
-    missing = [p for p in a.paths if not os.path.exists(p)]
-    for p in missing:
-        print(f"path not found: {p}", file=sys.stderr)
-    if missing:
-        return 1
     errors = warnings = 0
-    for path in files_of(a.paths):
-        for line, col, kind, msg in check_text(open(path, encoding="utf-8").read(), a.max_words, a.numbers):
+    for path, found in files_of(a.paths):
+        if not found:
+            print(f"{path}: error: path not found", file=sys.stderr)
+            errors += 1; continue
+        try:
+            text = open(path, encoding="utf-8").read()
+        except (OSError, UnicodeDecodeError) as e:
+            print(f"{path}: error: cannot read the file ({type(e).__name__})", file=sys.stderr)
+            errors += 1; continue
+        for line, col, kind, msg in check_text(text, a.max_words, a.numbers):
             print(f"{path}:{line}:{col}: {kind}: {msg}")
             errors += kind == "error"; warnings += kind == "warning"
     print(f"{errors} error(s), {warnings} warning(s)")
