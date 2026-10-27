@@ -4,8 +4,8 @@ The lab may name the people who did the work in its public text. We name you onl
 You can change your answer at any time.
 
 **Do not fill in this form in the repository.** The repository is public. Copy the form, fill it in, and send
-it to TSAI in the way TSAI tells you. TSAI keeps the filled forms. G11 Release keeps only a list of the names
-and choices.
+it to TSAI in the way TSAI tells you. TSAI keeps the filled forms and the list of names and choices, outside this
+repository. Before G11 Release names a person, G11 asks TSAI how that person chose to be named.
 
 ## 1. Where your name may appear
 
@@ -45,9 +45,10 @@ Mark one box in each part.
 
 ## 4. Change your mind
 
-Tell the G11 lead or TSAI. We stop using your name in new text from that day. We remove it from the dashboard
-and the repository within seven days. We cannot take back text that was already sent out, such as a posted
-announcement.
+Tell the G11 lead or TSAI. We stop using your name in new text from that day. Within seven days, we remove it
+from the dashboard and from the current files in the repository. Older versions stay in the Git history and in
+copies (forks) of the repository. TSAI decides whether to remove them. We cannot take back text that was already
+sent out, such as a posted announcement.
 
 ## 5. Sign
 

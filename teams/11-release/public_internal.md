@@ -17,7 +17,7 @@ Treat the item as internal. Ask in the G11 group. G11 asks TSAI.
 | Topic | What we may say |
 |---|---|
 | The lab | What the lab does, in plain words, as TSAI describes it. |
-| Teams | The names of the twelve teams and what each team works on this week, at the level of the weekly update. |
+| Teams | The names of the teams and what each team works on this week, at the level of the weekly update. |
 | People | Names of people who signed the consent form, in the form they chose. |
 | Data | The names of public data sources, and the kinds of problems we found in them. Short examples only if TSAI approves them and they hold no personal data. |
 | Benchmarks | The names of the benchmarks that G9 Evaluation gives us. Scores only after TSAI approves them. |
@@ -41,6 +41,9 @@ Treat the item as internal. Ask in the G11 group. G11 asks TSAI.
 ## How we keep this
 
 1. Every public text goes through the steps in `style/style_guide.md`.
-2. The pull request records the lead OKs and the TSAI approval.
-3. If something internal becomes public by mistake, tell the G11 lead and TSAI at once. Do not repeat the item
+2. A draft in a pull request is public, because the repository is public. It holds only facts that are already
+   public, and `[number: waiting for TSAI]` for a number that TSAI has not approved.
+3. The pull request records the lead OKs and the TSAI approval. It links only to public pull requests, never to
+   the CAP chat. TSAI approves before the G11 lead merges.
+4. If something internal becomes public by mistake, tell the G11 lead and TSAI at once. Do not repeat the item
    in the chat while you report it.

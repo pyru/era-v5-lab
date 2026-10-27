@@ -14,10 +14,13 @@ Usage:
 Exit code: 0 when there are no errors, 1 otherwise. A path that does not exist, or a file that cannot be read,
 counts as an error; the other paths are still checked.
 --numbers also lists every number as a warning: each number needs TSAI approval before it is published.
-List markers such as "1." are not numbers.
+Numbers written as words (two to ninety, hundred, thousand, million, billion, dozen) are warnings too; "one"
+is left out because it is too common. List markers such as "1." are not numbers.
 Banned words are not checked inside code blocks, inline code, URLs and link targets.
 The phrases in ALLOWED (such as "magic number") are not banned-word errors.
 Em-dashes, en-dashes and emails are checked everywhere.
+Each table cell is checked as its own sentence. A long-sentence error points to the line where the sentence starts.
+A folder means every .md and .txt file in it, except in tests/ folders (the test file has errors on purpose).
 The self-test also checks that style_guide.md lists the same banned words as BANNED.
 """
 import argparse
@@ -26,18 +29,23 @@ import re
 import sys
 
 BANNED = [
-    "revolutionary", "revolutionise", "revolutionize", "groundbreaking", "ground-breaking", "breakthrough",
-    "game-changer", "game-changing", "cutting-edge", "state-of-the-art", "SOTA", "world-class", "best-in-class",
-    "world's first", "first-ever", "unprecedented", "unparalleled", "unmatched", "paradigm shift", "disruptive",
-    "synergy", "leverage", "utilise", "utilize", "seamless", "seamlessly", "magic", "magical", "incredible",
-    "amazing", "awesome", "mind-blowing", "flawless", "guaranteed", "human-level", "superhuman", "AGI",
-    "sentient", "delve",
+    "revolutionary", "revolutionise", "revolutionised", "revolutionises", "revolutionising", "revolutionize",
+    "revolutionized", "revolutionizes", "revolutionizing", "groundbreaking", "ground-breaking", "breakthrough",
+    "breakthroughs", "game-changer", "game-changers", "game-changing", "cutting-edge", "state-of-the-art", "SOTA",
+    "world-class", "best-in-class", "world's first", "first-ever", "unprecedented", "unparalleled", "unmatched",
+    "paradigm shift", "paradigm shifts", "disruptive", "synergy", "synergies", "leverage", "leveraged", "leverages",
+    "leveraging", "utilise", "utilised", "utilises", "utilising", "utilize", "utilized", "utilizes", "utilizing",
+    "seamless", "seamlessly", "magic", "magical", "incredible", "amazing", "awesome", "mind-blowing", "flawless",
+    "guaranteed", "human-level", "superhuman", "AGI", "sentient", "delve", "delved", "delves", "delving",
 ]
 ALLOWED = ["magic number", "magic numbers"]   # technical phrases that contain a banned word
 EM_DASH = chr(0x2014)
 EN_DASH = chr(0x2013)
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
+NUMBER_WORD = re.compile(r"\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|"
+                         r"sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|"
+                         r"hundreds?|thousands?|millions?|billions?|trillions?|dozens?)\b", re.IGNORECASE)
 
 def banned_pattern(words):
     parts = []
@@ -76,22 +84,25 @@ def prose_lines(text):
         yield n, line
 
 def units(lines):
-    """Group lines into text units (paragraph, list item, heading, table row). Yield (start_line, text)."""
-    cur, start = [], 0
+    """Group lines into text units (paragraph, list item, heading, table cell). Yield a list of (line, text)."""
+    cur = []
     for n, line in lines:
         s = line.strip()
         new_unit = (not s or s.startswith(("#", "|", ">")) or re.match(r"^([-*+]|\d+[.)])\s", s))
         if new_unit and cur:
-            yield start, " ".join(cur); cur = []
+            yield cur; cur = []
         if not s:
             continue
-        if s.startswith(("#", "|")):
-            yield n, s.strip("#| ")
+        if s.startswith("#"):
+            yield [(n, s.strip("# "))]
             continue
-        if not cur: start = n
-        cur.append(re.sub(r"^([-*+>]|\d+[.)])\s+", "", s))
+        if s.startswith("|"):
+            for cell in s.strip("|").split("|"):
+                if cell.strip(): yield [(n, cell.strip())]
+            continue
+        cur.append((n, re.sub(r"^([-*+>]|\d+[.)])\s+", "", s)))
     if cur:
-        yield start, " ".join(cur)
+        yield cur
 
 def sentences(text):
     for s in re.split(r"(?<=[.!?])[\"'" + chr(0x201d) + chr(0x2019) + r")\]]*\s+", text):
@@ -119,8 +130,17 @@ def check_text(text, max_words=25, numbers=False):
             for m in NUMBER.finditer(line):
                 if marker and m.start() < marker.end(): continue
                 out.append((n, m.start() + 1, "warning", f"number '{m.group()}': has TSAI approved it?"))
-    for start, text_unit in units(lines):
+            for m in NUMBER_WORD.finditer(line):
+                out.append((n, m.start() + 1, "warning", f"number '{m.group()}': has TSAI approved it?"))
+    for parts in units(lines):
+        text_unit, starts = "", []
+        for n, part in parts:
+            starts.append((len(text_unit), n)); text_unit += part + " "
+        pos = 0
         for s in sentences(text_unit):
+            pos = text_unit.find(s, pos)
+            start = max(n for off, n in starts if off <= pos)
+            pos += len(s)
             words = [w for w in s.split() if re.search(r"\w", w)]
             if len(words) > max_words:
                 out.append((start, 1, "error", f"long-sentence: {len(words)} words (max {max_words}): '{' '.join(words[:8])} ...'"))
@@ -130,7 +150,8 @@ def files_of(paths):
     """Yield (path, found): every .md and .txt file under a folder, a file as given, and a missing path with False."""
     for p in paths:
         if os.path.isdir(p):
-            for root, _, names in os.walk(p):
+            for root, dirs, names in os.walk(p):
+                dirs[:] = sorted(d for d in dirs if d != "tests")   # tests/ has errors on purpose
                 for name in sorted(names):
                     if name.endswith((".md", ".txt")): yield os.path.join(root, name), True
         elif os.path.isfile(p):
@@ -153,6 +174,18 @@ def self_test():
     magic = [len(check_text(s)) for s in ("We removed a magic number.\n", "It works like magic.\n")]
     ok = ok and magic == [0, 1]
     print(f"self-test: 'a magic number' gives {magic[0]} errors, 'works like magic' gives {magic[1]}")
+    forms = len(check_text("We are leveraging it, we delved and we utilised synergies.\n"))
+    ok = ok and forms == 4
+    print(f"self-test: other forms of banned words give {forms} errors (want 4)")
+    nums = re.findall(r"number '([^']+)'", " ".join(x[3] for x in check_text("1. At step 200, twelve teams met.\n", numbers=True)))
+    ok = ok and nums == ["200", "twelve"]
+    print(f"self-test: --numbers on '1. At step 200, twelve teams met.' finds {nums} (want ['200', 'twelve'])")
+    table = len(check_text("| " + " | ".join(["word " * 10] * 4) + "|\n"))
+    ok = ok and table == 0
+    print(f"self-test: a table row of four 10-word cells gives {table} errors")
+    where = [x[0] for x in check_text("Short.\nThis " + "word " * 30 + "end.\n")]
+    ok = ok and where == [2]
+    print(f"self-test: a long sentence that starts on line 2 is reported at line {where}")
     words = guide_words(os.path.join(here, "style_guide.md"))
     only_guide = [w for w in words if w not in BANNED]
     only_script = [w for w in BANNED if w not in words]

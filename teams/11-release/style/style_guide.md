@@ -23,12 +23,14 @@ The checker must give 0 errors. Add `--numbers` to list every number in your tex
 
 The banned words (`check_style.py --self-test` fails if this list and the script differ):
 
-`revolutionary`, `revolutionise`, `revolutionize`, `groundbreaking`, `ground-breaking`, `breakthrough`,
-`game-changer`, `game-changing`, `cutting-edge`, `state-of-the-art`, `SOTA`, `world-class`, `best-in-class`,
-`world's first`, `first-ever`, `unprecedented`, `unparalleled`, `unmatched`, `paradigm shift`, `disruptive`,
-`synergy`, `leverage`, `utilise`, `utilize`, `seamless`, `seamlessly`, `magic`, `magical`, `incredible`,
-`amazing`, `awesome`, `mind-blowing`, `flawless`, `guaranteed`, `human-level`, `superhuman`, `AGI`,
-`sentient`, `delve`.
+`revolutionary`, `revolutionise`, `revolutionised`, `revolutionises`, `revolutionising`, `revolutionize`,
+`revolutionized`, `revolutionizes`, `revolutionizing`, `groundbreaking`, `ground-breaking`, `breakthrough`,
+`breakthroughs`, `game-changer`, `game-changers`, `game-changing`, `cutting-edge`, `state-of-the-art`, `SOTA`,
+`world-class`, `best-in-class`, `world's first`, `first-ever`, `unprecedented`, `unparalleled`, `unmatched`,
+`paradigm shift`, `paradigm shifts`, `disruptive`, `synergy`, `synergies`, `leverage`, `leveraged`, `leverages`,
+`leveraging`, `utilise`, `utilised`, `utilises`, `utilising`, `utilize`, `utilized`, `utilizes`, `utilizing`,
+`seamless`, `seamlessly`, `magic`, `magical`, `incredible`, `amazing`, `awesome`, `mind-blowing`, `flawless`,
+`guaranteed`, `human-level`, `superhuman`, `AGI`, `sentient`, `delve`, `delved`, `delves`, `delving`.
 
 The technical phrase `magic number` is allowed. The word `magic` on its own is not.
 
@@ -41,7 +43,9 @@ The technical phrase `magic number` is allowed. The word `magic` on its own is n
 
 ## Rules a reviewer checks
 
-5. **Numbers need TSAI approval.** Ask TSAI before you publish any number. See `public_internal.md`.
+5. **Numbers need TSAI approval.** Ask TSAI before you publish any number. See `public_internal.md`. Until TSAI
+   approves a number, write `[number: waiting for TSAI]` in its place. `--numbers` does not find every number
+   written as a word, so the reviewer checks for those too.
 6. **Say what we did.** Write about work that is done. Do not promise dates, sizes or results.
 7. **Names need consent.** Name a person only if they signed `consent_form.md`. Use the name the way
    they chose.
@@ -57,9 +61,10 @@ The technical phrase `magic number` is allowed. The word `magic` on its own is n
 
 ## How a text becomes public
 
-1. The writer drafts the text in `teams/11-release/` and runs the checker.
-2. Each team lead gives an OK for the sentence about their team.
-3. The G11 lead reviews the pull request and merges it when pr-guard passes. A pull request from the lead needs
-   a comment from a team member and approval from TSAI.
-4. TSAI approves the final text.
-5. Only then is the text published.
+1. The writer drafts the text and runs the checker until it gives 0 errors.
+2. Each team lead gives an OK for the text about their team.
+3. The writer opens a pull request. The repository is public, so the pull request is public too. It may hold
+   only facts that are already public, and `[number: waiting for TSAI]` for a number that TSAI has not approved.
+4. The G11 lead reviews the pull request. A pull request from the lead also needs a comment from a team member.
+5. TSAI approves the text in the pull request.
+6. The G11 lead merges it only after TSAI approves. Then the text may be published.
