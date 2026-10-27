@@ -57,6 +57,6 @@ How to fill it:
 - [ ] Every number in the text has TSAI approval
 - [ ] Every person named has signed the consent form
 - [ ] Nothing from the internal list in `public_internal.md`
-- [ ] Raj reviewed the pull request
+- [ ] The G11 lead approved the pull request (a pull request from the lead: a team member commented and TSAI approved)
 - [ ] Sent to TSAI on: <DD Mon YYYY>
 - [ ] TSAI approved on: <DD Mon YYYY>

@@ -59,6 +59,7 @@ The technical phrase `magic number` is allowed. The word `magic` on its own is n
 
 1. The writer drafts the text in `teams/11-release/` and runs the checker.
 2. Each team lead gives an OK for the sentence about their team.
-3. Raj reviews the pull request. The G11 lead merges it after Raj gives an OK.
+3. The G11 lead reviews the pull request and merges it when pr-guard passes. A pull request from the lead needs
+   a comment from a team member and approval from TSAI.
 4. TSAI approves the final text.
 5. Only then is the text published.
