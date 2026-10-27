@@ -2,7 +2,7 @@
 
 It finds four kinds of error (see style_guide.md):
   banned-word    a word from the banned list
-  em-dash        the character U+2014
+  em-dash        the character U+2014 (and en-dash, U+2013: write "to" for a range)
   email          an email address
   long-sentence  a sentence with more than --max-words words (default 25)
 
@@ -11,10 +11,12 @@ Usage:
     python check_style.py --list          # print the banned words
     python check_style.py --self-test     # the test file must give exactly 4 errors
 
-Exit code: 0 when there are no errors, 1 otherwise.
+Exit code: 0 when there are no errors, 1 otherwise (also when a path does not exist).
 --numbers also lists every number as a warning: each number needs TSAI approval before it is published.
+List markers such as "1." are not numbers.
 Banned words are not checked inside code blocks, inline code, URLs and link targets.
-Em-dashes and emails are checked everywhere.
+Em-dashes, en-dashes and emails are checked everywhere.
+The self-test also checks that style_guide.md lists the same banned words as BANNED.
 """
 import argparse
 import os
@@ -30,6 +32,7 @@ BANNED = [
     "sentient", "delve",
 ]
 EM_DASH = chr(0x2014)
+EN_DASH = chr(0x2013)
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 NUMBER = re.compile(r"(?<![\w.])\d[\d,.]*%?")
 
@@ -41,6 +44,11 @@ def banned_pattern(words):
     return re.compile(r"(?<![\w-])(?:" + "|".join(parts) + r")(?![\w-])", re.IGNORECASE)
 
 BANNED_RE = banned_pattern(BANNED)
+
+def guide_words(path):
+    """The banned words as style_guide.md lists them: the paragraph of `words` after 'The banned words'."""
+    text = open(path, encoding="utf-8").read()
+    return re.findall(r"`([^`]+)`", text.split("The banned words", 1)[1].split("\n\n", 2)[1])
 
 def prose_lines(text):
     """Yield (line_number, line) with code blocks, inline code, HTML comments and link targets blanked out.
@@ -88,10 +96,12 @@ def sentences(text):
 def check_text(text, max_words=25, numbers=False):
     """Return a list of (line, col, kind, message). kind is 'error' or 'warning'."""
     out = []
-    # Em-dashes and emails are errors anywhere in the file, even in code or links.
+    # Em-dashes, en-dashes and emails are errors anywhere in the file, even in code or links.
     for n, raw in enumerate(text.split("\n"), 1):
         for m in re.finditer(EM_DASH, raw):
             out.append((n, m.start() + 1, "error", "em-dash: use a full stop, a comma or 'and'"))
+        for m in re.finditer(EN_DASH, raw):
+            out.append((n, m.start() + 1, "error", "en-dash: write 'to' for a range (24 to 31 Oct), or use a full stop or a comma"))
         for m in EMAIL.finditer(raw):
             out.append((n, m.start() + 1, "error", "email: no email addresses in public text"))
     lines = list(prose_lines(text))
@@ -99,7 +109,9 @@ def check_text(text, max_words=25, numbers=False):
         for m in BANNED_RE.finditer(line):
             out.append((n, m.start() + 1, "error", f"banned-word: '{m.group()}'"))
         if numbers:
+            marker = re.match(r"\s*\d+[.)](?=\s)", line)   # a list marker, not a number
             for m in NUMBER.finditer(line):
+                if marker and m.start() < marker.end(): continue
                 out.append((n, m.start() + 1, "warning", f"number '{m.group()}': has TSAI approved it?"))
     for start, text_unit in units(lines):
         for s in sentences(text_unit):
@@ -126,6 +138,16 @@ def self_test():
     ok = len(errs) == 4 and kinds == ["banned-word", "em-dash", "email", "long-sentence"]
     ok = ok and not check_text(clean)
     print(f"self-test: {test} gives {len(errs)} errors {kinds}; clean sample gives {len(check_text(clean))}")
+    range_kinds = [x[3].split(":")[0] for x in check_text("We met from 24" + EN_DASH + "31 Oct.\n")]
+    ok = ok and range_kinds == ["en-dash"]
+    print(f"self-test: a date range with an en-dash gives {range_kinds}")
+    words = guide_words(os.path.join(here, "style_guide.md"))
+    only_guide = [w for w in words if w not in BANNED]
+    only_script = [w for w in BANNED if w not in words]
+    ok = ok and not only_guide and not only_script
+    print(f"self-test: style_guide.md lists {len(words)} banned words, the script {len(BANNED)}"
+          + (f"; only in the guide: {only_guide}" if only_guide else "")
+          + (f"; only in the script: {only_script}" if only_script else ""))
     print("self-test PASS" if ok else "self-test FAIL")
     return 0 if ok else 1
 
@@ -144,6 +166,11 @@ def main():
         return self_test()
     if not a.paths:
         ap.error("give at least one file or folder")
+    missing = [p for p in a.paths if not os.path.exists(p)]
+    for p in missing:
+        print(f"path not found: {p}", file=sys.stderr)
+    if missing:
+        return 1
     errors = warnings = 0
     for path in files_of(a.paths):
         for line, col, kind, msg in check_text(open(path, encoding="utf-8").read(), a.max_words, a.numbers):

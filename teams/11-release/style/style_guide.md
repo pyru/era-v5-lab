@@ -15,12 +15,13 @@ The checker must give 0 errors. Add `--numbers` to list every number in your tex
 ## Rules the checker enforces
 
 1. **Short sentences.** At most 25 words in a sentence. One idea per sentence.
-2. **No em-dashes.** Use a full stop, a comma, a colon or "and". A plain hyphen in a word is fine.
+2. **No em-dashes or en-dashes.** Use a full stop, a comma, a colon or "and". For a range, write "to":
+   `24 to 31 Oct`. A plain hyphen in a word is fine.
 3. **No email addresses.** Public text never contains an email address. Point readers to the public repository
    or to TSAI instead.
 4. **No banned words.** These words promise too much, or say nothing. Write the fact instead.
 
-The banned words (run `check_style.py --list` for the current list):
+The banned words (`check_style.py --self-test` fails if this list and the script differ):
 
 `revolutionary`, `revolutionise`, `revolutionize`, `groundbreaking`, `ground-breaking`, `breakthrough`,
 `game-changer`, `game-changing`, `cutting-edge`, `state-of-the-art`, `SOTA`, `world-class`, `best-in-class`,
@@ -56,6 +57,6 @@ The banned words (run `check_style.py --list` for the current list):
 
 1. The writer drafts the text in `teams/11-release/` and runs the checker.
 2. Each team lead gives an OK for the sentence about their team.
-3. The G11 group reviews the pull request. Raj reviews and merges.
+3. Raj reviews the pull request. The G11 lead merges it after Raj gives an OK.
 4. TSAI approves the final text.
 5. Only then is the text published.
