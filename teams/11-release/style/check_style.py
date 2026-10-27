@@ -15,6 +15,7 @@ Exit code: 0 when there are no errors, 1 otherwise (also when a path does not ex
 --numbers also lists every number as a warning: each number needs TSAI approval before it is published.
 List markers such as "1." are not numbers.
 Banned words are not checked inside code blocks, inline code, URLs and link targets.
+The phrases in ALLOWED (such as "magic number") are not banned-word errors.
 Em-dashes, en-dashes and emails are checked everywhere.
 The self-test also checks that style_guide.md lists the same banned words as BANNED.
 """
@@ -31,10 +32,11 @@ BANNED = [
     "amazing", "awesome", "mind-blowing", "flawless", "guaranteed", "human-level", "superhuman", "AGI",
     "sentient", "delve",
 ]
+ALLOWED = ["magic number", "magic numbers"]   # technical phrases that contain a banned word
 EM_DASH = chr(0x2014)
 EN_DASH = chr(0x2013)
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
-NUMBER = re.compile(r"(?<![\w.])\d[\d,.]*%?")
+NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
 
 def banned_pattern(words):
     parts = []
@@ -44,6 +46,7 @@ def banned_pattern(words):
     return re.compile(r"(?<![\w-])(?:" + "|".join(parts) + r")(?![\w-])", re.IGNORECASE)
 
 BANNED_RE = banned_pattern(BANNED)
+ALLOWED_RE = banned_pattern(ALLOWED)
 
 def guide_words(path):
     """The banned words as style_guide.md lists them: the paragraph of `words` after 'The banned words'."""
@@ -106,7 +109,9 @@ def check_text(text, max_words=25, numbers=False):
             out.append((n, m.start() + 1, "error", "email: no email addresses in public text"))
     lines = list(prose_lines(text))
     for n, line in lines:
+        allowed = [m.span() for m in ALLOWED_RE.finditer(line)]
         for m in BANNED_RE.finditer(line):
+            if any(a <= m.start() < b for a, b in allowed): continue
             out.append((n, m.start() + 1, "error", f"banned-word: '{m.group()}'"))
         if numbers:
             marker = re.match(r"\s*\d+[.)](?=\s)", line)   # a list marker, not a number
@@ -141,6 +146,9 @@ def self_test():
     range_kinds = [x[3].split(":")[0] for x in check_text("We met from 24" + EN_DASH + "31 Oct.\n")]
     ok = ok and range_kinds == ["en-dash"]
     print(f"self-test: a date range with an en-dash gives {range_kinds}")
+    magic = [len(check_text(s)) for s in ("We removed a magic number.\n", "It works like magic.\n")]
+    ok = ok and magic == [0, 1]
+    print(f"self-test: 'a magic number' gives {magic[0]} errors, 'works like magic' gives {magic[1]}")
     words = guide_words(os.path.join(here, "style_guide.md"))
     only_guide = [w for w in words if w not in BANNED]
     only_script = [w for w in BANNED if w not in words]

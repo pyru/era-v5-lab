@@ -30,6 +30,8 @@ The banned words (`check_style.py --self-test` fails if this list and the script
 `amazing`, `awesome`, `mind-blowing`, `flawless`, `guaranteed`, `human-level`, `superhuman`, `AGI`,
 `sentient`, `delve`.
 
+The technical phrase `magic number` is allowed. The word `magic` on its own is not.
+
 | Instead of | Write |
 |---|---|
 | `a groundbreaking tokenizer` | a tokenizer that splits Kannada words into fewer pieces |
