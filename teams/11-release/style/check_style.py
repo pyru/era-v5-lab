@@ -35,8 +35,9 @@ BANNED = [
     "world-class", "best-in-class", "world's first", "first-ever", "unprecedented", "unparalleled", "unmatched",
     "paradigm shift", "paradigm shifts", "disruptive", "synergy", "synergies", "leverage", "leveraged", "leverages",
     "leveraging", "utilise", "utilised", "utilises", "utilising", "utilize", "utilized", "utilizes", "utilizing",
-    "seamless", "seamlessly", "magic", "magical", "incredible", "amazing", "awesome", "mind-blowing", "flawless",
-    "guaranteed", "human-level", "superhuman", "AGI", "sentient", "delve", "delved", "delves", "delving",
+    "seamless", "seamlessly", "magic", "magical", "magically", "incredible", "incredibly", "amazing", "amazingly",
+    "awesome", "mind-blowing", "flawless", "flawlessly", "guarantee", "guaranteed", "guarantees", "human-level",
+    "superhuman", "AGI", "sentient", "delve", "delved", "delves", "delving",
 ]
 ALLOWED = ["magic number", "magic numbers"]   # technical phrases that contain a banned word
 EM_DASH = chr(0x2014)
@@ -174,9 +175,9 @@ def self_test():
     magic = [len(check_text(s)) for s in ("We removed a magic number.\n", "It works like magic.\n")]
     ok = ok and magic == [0, 1]
     print(f"self-test: 'a magic number' gives {magic[0]} errors, 'works like magic' gives {magic[1]}")
-    forms = len(check_text("We are leveraging it, we delved and we utilised synergies.\n"))
-    ok = ok and forms == 4
-    print(f"self-test: other forms of banned words give {forms} errors (want 4)")
+    forms = len(check_text("We are leveraging it, we delved and we utilised synergies. It guarantees incredibly good results.\n"))
+    ok = ok and forms == 6
+    print(f"self-test: other forms of banned words give {forms} errors (want 6)")
     nums = re.findall(r"number '([^']+)'", " ".join(x[3] for x in check_text("1. At step 200, twelve teams met.\n", numbers=True)))
     ok = ok and nums == ["200", "twelve"]
     print(f"self-test: --numbers on '1. At step 200, twelve teams met.' finds {nums} (want ['200', 'twelve'])")

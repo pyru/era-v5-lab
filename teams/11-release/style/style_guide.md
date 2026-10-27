@@ -29,8 +29,9 @@ The banned words (`check_style.py --self-test` fails if this list and the script
 `world-class`, `best-in-class`, `world's first`, `first-ever`, `unprecedented`, `unparalleled`, `unmatched`,
 `paradigm shift`, `paradigm shifts`, `disruptive`, `synergy`, `synergies`, `leverage`, `leveraged`, `leverages`,
 `leveraging`, `utilise`, `utilised`, `utilises`, `utilising`, `utilize`, `utilized`, `utilizes`, `utilizing`,
-`seamless`, `seamlessly`, `magic`, `magical`, `incredible`, `amazing`, `awesome`, `mind-blowing`, `flawless`,
-`guaranteed`, `human-level`, `superhuman`, `AGI`, `sentient`, `delve`, `delved`, `delves`, `delving`.
+`seamless`, `seamlessly`, `magic`, `magical`, `magically`, `incredible`, `incredibly`, `amazing`, `amazingly`,
+`awesome`, `mind-blowing`, `flawless`, `flawlessly`, `guarantee`, `guaranteed`, `guarantees`, `human-level`,
+`superhuman`, `AGI`, `sentient`, `delve`, `delved`, `delves`, `delving`.
 
 The technical phrase `magic number` is allowed. The word `magic` on its own is not.
 
@@ -62,9 +63,10 @@ The technical phrase `magic number` is allowed. The word `magic` on its own is n
 ## How a text becomes public
 
 1. The writer drafts the text and runs the checker until it gives 0 errors.
-2. Each team lead gives an OK for the text about their team.
-3. The writer opens a pull request. The repository is public, so the pull request is public too. It may hold
+2. The writer opens a pull request. The repository is public, so the pull request is public too. It may hold
    only facts that are already public, and `[number: waiting for TSAI]` for a number that TSAI has not approved.
+3. Each team lead gives an OK for the text about their team. The writer marks it in the review record of the
+   pull request.
 4. The G11 lead reviews the pull request. A pull request from the lead also needs a comment from a team member.
 5. TSAI approves the text in the pull request.
 6. The G11 lead merges it only after TSAI approves. Then the text may be published.
