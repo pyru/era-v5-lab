@@ -497,7 +497,7 @@ def clean(t):
 
 ## Medicine 12: D3, Kannada and another language mixed
 
-1. **Disease:** D3. My labels: 26 of 500 labelled documents. The rule changes nothing. English phrases or sentences inside Kannada sentences, and quoted Sanskrit or Arabic. This is how people write; the brief says label it, do not judge it.
+1. **Disease:** D3. My labels: 23 of 500 labelled documents. The rule changes nothing. English phrases or sentences inside Kannada sentences, and quoted Sanskrit or Arabic. This is how people write; the brief says label it, do not judge it.
    Three examples from my labels:
    - `5162614ed46214d1` at 1199: 'CBSE Class 10 Board Exam 2021 ಅನ್ನು'
    - `c7dec812322736d6` at 6735: 'وما أرسلناك'
