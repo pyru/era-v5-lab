@@ -35,7 +35,7 @@ public pull requests. Never link to the CAP chat. Chat links are internal.
 How to fill it:
 
 1. Collect the text for each team.
-   - Week 1: one sentence from each lead. Ask through Rohan in the CAP chat, and give the due day.
+   - Week 1: one sentence from each lead. Ask the leads in the CAP chat, and give the due day.
    - From week 2: one short paragraph for each team, from the rotating student of that team or from the lead.
 2. Paste each text above. Edit it only for style, and send the edit back to the writer.
 3. Mark "Lead OK" when the lead of that team says OK to the final text.
