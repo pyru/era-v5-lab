@@ -10,6 +10,8 @@ this sheet says "my labels", it means all 500 rows.
 
 One section for each disease that my labels show more than five times. Each section has the tested code. The helper functions in `kn_rules.py` are at the end, so every function runs on its own.
 
+The sheet runs as it is with Data A's `harm_test.py --rules medicine.md --rule all`. The `RULES` dict at the end lists one rule for each disease code, in the run order of `clean()`. `clean(text)` returns the fixed text, or None when the document is dropped. Only Python's `re` module is needed.
+
 Run order on one document: B4 first, because it restores the real line breaks that the line rules need; then the drop rules; then the other fixes. C3 comes last, after the boilerplate at the end is gone. Counts and offsets below are on the text after the B4 fix (the same as the pack except in the 15 documents with a literal backslash-n).
 
 ```python
@@ -147,7 +149,7 @@ def clean(t):
 
 3. **Action:** Fix: replace each such visarga with ':' and remove the space after each such dot.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
    Note: the rule changes more than half of this pack. If the gold readers did not count a colon-visarga as a disease, the gold set will contain it too, and this medicine will change more than 1% of it by design. I will ask in CAP whether that counts as harm.
 
@@ -195,7 +197,7 @@ def clean(t):
 
 3. **Action:** Fix: remove those lines.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -233,7 +235,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the unfinished sentence.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -262,7 +264,7 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -298,7 +300,7 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -329,7 +331,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the repeats.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -368,7 +370,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the English block.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -387,7 +389,10 @@ def clean(t):
 2. **Medicine:** Drop a document when a Kannada word holds a Latin-1 or Latin Extended letter, or a '$' directly before a Kannada vowel sign or virama. IAST letters (ā, ṇ, ś) do not count, and neither do '$100ರಷ್ಟು' or '30°ಸೆ'.
 
    ```python
-   from kn_rules import legacy_residue   # kn_rules.py is at the end of this sheet
+   try:
+       from kn_rules import legacy_residue   # when this block runs on its own
+   except ImportError:
+       pass   # the whole sheet: legacy_residue is in the appendix at the end
 
 
    def has_legacy(t):
@@ -397,7 +402,7 @@ def clean(t):
 
 3. **Action:** Drop. The way back from these fonts depends on the font, so a safe fix is not possible.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -415,7 +420,10 @@ def clean(t):
 2. **Medicine:** Count the vowel signs, viramas, nuktas, anusvaras and visargas that have no letter to sit on. ಆ್ಯ, the standard spelling of the English 'a' sound (ಆ್ಯಪ್), does not count. Drop a document with 3 or more.
 
    ```python
-   from kn_rules import broken_signs   # kn_rules.py is at the end of this sheet
+   try:
+       from kn_rules import broken_signs   # when this block runs on its own
+   except ImportError:
+       pass   # the whole sheet: broken_signs is in the appendix at the end
 
 
    def heavy_broken_signs(t, min_count=3):
@@ -425,7 +433,7 @@ def clean(t):
 
 3. **Action:** Drop. A document with one or two such signs is kept.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -455,7 +463,7 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -488,7 +496,7 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. Data A and Data B give the Kannada gold set and the harm-test script by Thu 29 Oct. I will run this rule on the gold set and write: it changes __ and drops __ of __ gold documents (__%), pass or fail.
+4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
    Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
 
 5. **Side effects:**
@@ -518,7 +526,7 @@ def clean(t):
 5. **Side effects:**
    - None: the rule changes nothing. A mixed document that also has another disease is handled by the medicine for that disease.
 
-## Helper functions (kn_rules.py)
+## Appendix: helper functions (kn_rules.py)
 
 ```python
 """Kannada character rules shared by the detectors and the medicines.
@@ -605,4 +613,23 @@ def legacy_residue(t):
             elif c == "$" and is_kn(nxt) and not nxt.isalpha():
                 out.append(m.start() + k)
     return out
+```
+
+The rules by disease code, in the run order of `clean()`, for Data A's `harm_test.py` and `medicine_extract.py`:
+
+```python
+RULES = {
+    "B4": fix_literal_newline,
+    "A3": has_legacy,
+    "G1": heavy_broken_signs,
+    "C5": headline_list,
+    "D4": mt_traces,
+    "G4": fix_over_normalised,
+    "A6": fix_lookalikes,
+    "C1": strip_boilerplate,
+    "C2": dedupe_lines,
+    "C4": cut_english_tail,
+    "C3": cut_unfinished_end,
+    "D3": keep_mixed,
+}
 ```
