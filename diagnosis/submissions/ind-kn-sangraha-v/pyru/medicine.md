@@ -12,6 +12,8 @@ One section for each disease that my labels show more than five times. Each sect
 
 The sheet runs as it is with Data A's `harm_test.py --rules medicine.md --rule all`. The `RULES` dict at the end lists one rule for each disease code, in the run order of `clean()`. `clean(text)` returns the fixed text, or None when the document is dropped. Only Python's `re` module is needed.
 
+**Harm tests.** The gold set here is the interim gold set of this pack. Data A's `build_gold.py` (commit 46b7fc1) made it from the two labels files of this pack, by `Anusha-raju` and me: the documents that both of us read in full and marked clean, with no codes. I ran Data A's `harm_test.py --rules medicine.md --rule all` (same commit) on it. I ran it on Windows, where the test's per-document time limit does not work, so that limit was off. When Data B publishes the Kannada gold set, I will run the test again and update these results. All the medicines in order change 0 and drop 0 of the 30 gold documents (0.0%): pass. Each section gives its medicine alone.
+
 Run order on one document: B4 first, because it restores the real line breaks that the line rules need; then the drop rules; then the other fixes. C3 comes last, after the boilerplate at the end is gone. Counts and offsets below are on the text after the B4 fix (the same as the pack except in the 15 documents with a literal backslash-n).
 
 ```python
@@ -149,9 +151,8 @@ def clean(t):
 
 3. **Action:** Fix: replace each such visarga with ':' and remove the space after each such dot.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
-   Note: the rule changes more than half of this pack. If the gold readers did not count a colon-visarga as a disease, the gold set will contain it too, and this medicine will change more than 1% of it by design. I will ask in CAP whether that counts as harm.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+   Note: here it changes nothing, because my labels mark no document with a colon-visarga as clean, so no such document is clean for both readers. Data B's Kannada gold set pools the other Kannada packs, where readers may have marked such text clean. There this medicine can change more than 1% by design. I will ask in CAP whether that counts as harm.
 
 5. **Side effects:**
    - Sanskrit verse quoted without a danda, with one visarga word in a line (ಮತ್ಸರಃ, ಶಂಭೋಃ), is still changed to ':'. In this pack that happens in one document (cda8a7fb4c34da99, 2 visargas).
@@ -197,8 +198,7 @@ def clean(t):
 
 3. **Action:** Fix: remove those lines.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A real list item that starts with '- News', '- Sports' or '- #' would be removed.
@@ -235,8 +235,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the unfinished sentence.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A last line that is a list or an address with no full stop is cut (a press-office address in c713689df252717f; a keyword list in 7b1751ffb7f20ff0).
@@ -264,8 +263,7 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A text about programming that shows \n on purpose would change.
@@ -300,8 +298,7 @@ def clean(t):
 
 3. **Action:** Fix.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A number written in Kannada digits right after a word with no space (ಪುಟ೦) would change; I did not see this in the pack.
@@ -331,8 +328,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the repeats.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - Song refrains, poems and lists that repeat a line on purpose lose the repeats. In this pack: the coach list of two trains that have the same coaches (f8849202ab1a46be).
@@ -370,8 +366,7 @@ def clean(t):
 
 3. **Action:** Fix: remove the English block.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - An English footer or disclaimer at the end is also removed. That is boilerplate (C1), so the change is still right, but it is not C4 (three documents in this pack).
@@ -402,8 +397,7 @@ def clean(t):
 
 3. **Action:** Drop. The way back from these fonts depends on the font, so a safe fix is not possible.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A good document with a single leftover letter is lost.
@@ -433,8 +427,7 @@ def clean(t):
 
 3. **Action:** Drop. A document with one or two such signs is kept.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - Documents with one or two broken signs keep them. My labels show G1 in 32 documents; most are a misplaced reph (ಜಾಜ್ರ್ for ಜಾರ್ಜ್, ಮಾಚ್ರ್ for ಮಾರ್ಚ್) or a few lost vowel signs in PDF text, which I marked fix, not drop. The rule drops the 3 documents where the damage is dense.
@@ -463,8 +456,7 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - A poem, a song or a short list-style notice with 8 or more lines would be dropped. Kannada verse lines have no full stop, so verse is the main risk; in this pack the rule drops no verse.
@@ -496,8 +488,7 @@ def clean(t):
 
 3. **Action:** Drop.
 
-4. **Harm test:** pending. Data B publishes the interim Kannada gold set by Fri 30 Oct. I will run Data A's `harm_test.py` on it and write the result here: it changes __ and drops __ of __ gold documents (__%), pass or fail.
-   Stand-in until then (not the gold set): on the 105 documents of this pack that I labelled clean, it changes 0 and drops 0.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - The rule is weak: my labels show D4 in 30 documents and it finds 1 of them. Most bad translation shows only in the meaning. A scale filter needs a model, for example the perplexity of a Kannada language model or a round-trip translation score; I give the rule as a safe first step.
@@ -521,7 +512,7 @@ def clean(t):
 
 3. **Action:** Keep (no change).
 
-4. **Harm test:** not needed. The rule changes nothing, so it changes 0 and drops 0 documents of any gold set.
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
    - None: the rule changes nothing. A mixed document that also has another disease is handled by the medicine for that disease.
