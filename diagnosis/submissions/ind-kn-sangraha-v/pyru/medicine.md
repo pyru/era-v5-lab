@@ -8,11 +8,11 @@ ruling of 25 Oct on repeated passages, Claude also changed `5f35a70c444aa76f` fr
 of these three rows says so. Claude also wrote the medicine code in this sheet and ran the checks on the pack. Where
 this sheet says "my labels", it means all 500 rows.
 
-One section for each disease that my labels show more than five times. Each section has the tested code. The helper functions in `kn_rules.py` are at the end, so every function runs on its own.
+One section for each disease that my labels show more than five times. Each section has the tested code, and each code block runs on its own: the helper functions it needs are copied into it. Only Python's `re` module is needed.
 
-The sheet runs as it is with Data A's `harm_test.py --rules medicine.md --rule all`. The `RULES` dict at the end lists one rule for each disease code, in the run order of `clean()`. `clean(text)` returns the fixed text, or None when the document is dropped. Only Python's `re` module is needed.
+The rule of each section is `medicine_<code>(text)`, the name that Data A's `harm_test.py --rules medicine.md` looks for. A fix rule returns the fixed text; a drop rule returns True when the document is dropped. `clean(text)` below runs all of them and returns the fixed text, or None when the document is dropped. The sections are in the run order of `clean()`, so a test that runs the rules one after another in file order runs them as `clean()` does.
 
-**Harm tests.** The gold set here is the interim gold set of this pack. Data A's `build_gold.py` (commit 46b7fc1) made it from the two labels files of this pack, by `Anusha-raju` and me: the documents that both of us read in full and marked clean, with no codes. I ran Data A's `harm_test.py --rules medicine.md --rule all` (same commit) on it. I ran it on Windows, where the test's per-document time limit does not work, so that limit was off. When Data B publishes the Kannada gold set, I will run the test again and update these results. All the medicines in order change 0 and drop 0 of the 30 gold documents (0.0%): pass. Each section gives its medicine alone.
+**Harm tests.** The gold set here is the interim gold set of this pack. Data A's `build_gold.py` (commit 46b7fc1) made it from the two labels files of this pack, by `Anusha-raju` and me: the documents that both of us read in full and marked clean, with no codes. I ran Data A's `harm_test.py --rules medicine.md --rule all` (same commit) on it, with the earlier version of this sheet (commit 356c1cb). I ran it on Windows, where the test's per-document time limit does not work, so that limit was off. This version gives each rule the name `medicine_<code>` and copies the helper functions into the sections; each rule gives the same result as before on all 500 documents of the pack. When Data B publishes the Kannada gold set, I will run the test again and update these results. All the medicines in order change 0 and drop 0 of the 30 gold documents (0.0%): pass. Each section gives its medicine alone.
 
 Run order on one document: B4 first, because it restores the real line breaks that the line rules need; then the drop rules; then the other fixes. C3 comes last, after the boilerplate at the end is gone. Counts and offsets below are on the text after the B4 fix (the same as the pack except in the 15 documents with a literal backslash-n).
 
@@ -31,7 +31,238 @@ def clean(t):
     return t
 ```
 
-## Medicine 1: G4, visarga written for a colon, and the split dot
+## Medicine 1: B4, a literal backslash-n in the text
+
+1. **Disease:** B4. My labels: 19 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (309 backslash-n); 15 of them are documents that I labelled B4. The two characters '\' and 'n' stand where a line break should be. The text was escaped twice.
+   Three examples:
+   - `3db23e9e76ca858e` at 81: `ಕನ್ನಡ ನ್ಯೂಸ್\nಮೈಸೂರುಃ ಚಾಮು` (the two characters 005C 006E)
+   - `cac1e9c1e7750da3` at 108: `anet Kannada\nಮುಖಪುಟ » ಸ್ಥ` (the two characters 005C 006E)
+   - `76ab2e51b2167698` at 66: `ಗಳು | AASraw\n/ಬ್ಲಾಗ್/ಗ್ಯಾ` (the two characters 005C 006E)
+
+2. **Medicine:** Replace every backslash-n (two characters) with a real line break.
+
+   ```python
+   BS = chr(92)
+
+
+   def fix_literal_newline(t):
+       """B4: a literal backslash-n (two characters) becomes a real newline."""
+       return t.replace(BS + "n", "\n")
+
+
+   def medicine_b4(text):
+       """The B4 rule, under the name that the harm tests look for: returns the fixed text."""
+       return fix_literal_newline(text)
+   ```
+
+3. **Action:** Fix.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - A text about programming that shows \n on purpose would change.
+   - A literal \t or \r is not handled.
+
+## Medicine 2: A3, leftover characters of an old Kannada font
+
+1. **Disease:** A3. My labels: 10 of 500 labelled documents. In the whole pack the rule finds 6 of 500 documents; 6 of them are documents that I labelled A3. Some pages were typed in an ASCII font (Nudi or Baraha) and converted to Unicode only in part. Latin letters such as ø, ä, Ç and É are left inside Kannada words.
+   Three examples:
+   - `f1ee75f8842c24c6` at 527: `ಸ್ಕೊ$್ವಟ್ರ್ಸೊವ್` (residue 0024 '$')
+   - `7a99953536fb30ba` at 1051: `ಸಾಂಸ್ಕøತಿಕ` (residue 00F8 'ø')
+   - `c84d7b1e2256670e` at 1064: `ನಿಟ್ಟಿನÇÉೇ` (residue 00C7 'Ç')
+
+2. **Medicine:** Drop a document when a Kannada word holds a Latin-1 or Latin Extended letter, or a '$' directly before a Kannada vowel sign or virama. IAST letters (ā, ṇ, ś) do not count, and neither do '$100ರಷ್ಟು' or '30°ಸೆ'.
+
+   ```python
+   import re
+
+   IAST = set("āīūṛṝḷṅñṇṭḍśṣḥṁĀĪŪṚṄÑṆṬḌŚṢḤṀ")              # romanised Indic, not legacy-font residue
+
+
+   def is_kn(c):
+       return 0x0C80 <= ord(c) <= 0x0CFF
+
+
+   def legacy_residue(t):
+       """A3: offsets of legacy-font (Nudi/Baraha) residue inside Kannada words.
+
+       Residue is a Latin-1 or Latin Extended letter inside a word that also holds Kannada (ಸಂಸ್ಕøತಿ), or a '$'
+       directly before a Kannada vowel sign or virama (ಸ್ಕೊ$್ವ). A '$' before a digit ($100ರಷ್ಟು), a degree
+       sign (30°ಸೆ) and IAST letters are not residue.
+       """
+       out = []
+       for m in re.finditer(r"\S+", t):
+           w = m.group()
+           if not any(is_kn(c) for c in w):
+               continue
+           for k, c in enumerate(w):
+               nxt = w[k + 1] if k + 1 < len(w) else " "
+               if c.isalpha() and 0xC0 <= ord(c) <= 0x24F and c not in IAST:
+                   out.append(m.start() + k)
+               elif c == "$" and is_kn(nxt) and not nxt.isalpha():
+                   out.append(m.start() + k)
+       return out
+
+
+   def has_legacy(t):
+       """A3: drop a document with legacy-font (Nudi/Baraha) residue inside Kannada words."""
+       return bool(legacy_residue(t))
+
+
+   def medicine_a3(text):
+       """The A3 rule, under the name that the harm tests look for: True drops the document."""
+       return has_legacy(text)
+   ```
+
+3. **Action:** Drop. The way back from these fonts depends on the font, so a safe fix is not possible.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - A good document with a single leftover letter is lost.
+   - A foreign name with an accent glued to a Kannada suffix (Peléಗೆ) drops the document.
+
+## Medicine 3: G1, vowel signs cut off from their letter
+
+1. **Disease:** G1. My labels: 32 of 500 labelled documents. In the whole pack the rule finds 3 of 500 documents; 3 of them are documents that I labelled G1. In some documents a vowel sign or virama stands with no letter before it: a reph in the wrong place, or a letter lost when the text was taken out of a PDF.
+   Three examples:
+   - `c245d243cb8e3428` at 20: `ಾಯಾಗ್ರಹಣ` (0079 0020 0CBE)
+   - `c84d7b1e2256670e` at 1066: `ನಿಟ್ಟಿನÇÉೇ` (00C7 00C9 0CC7)
+   - `9f746e71dabdd692` at 1561: `ವಿಶೇಷವಾದರ್ಷಾಾಂ` (0CB7 0CBE 0CBE)
+
+2. **Medicine:** Count the vowel signs, viramas, nuktas, anusvaras and visargas that have no letter to sit on. ಆ್ಯ, the standard spelling of the English 'a' sound (ಆ್ಯಪ್), does not count. Drop a document with 3 or more.
+
+   ```python
+   KN_CONS = set(range(0x0C95, 0x0CBA)) | {0x0CDE}         # consonants
+   KN_MATRA = set(range(0x0CBE, 0x0CCD))                   # dependent vowel signs
+   VIRAMA_CP, NUKTA_CP, ANUSVARA_CP, VISARGA_CP = 0x0CCD, 0x0CBC, 0x0C82, 0x0C83   # code points, not characters
+   LEN_MARKS = {0x0CD5, 0x0CD6}
+   VOWELS_BEFORE_YA = {0x0C85, 0x0C86, 0x0C8E}             # ಅ ಆ ಎ, as in ಆ್ಯಪ್
+   YA = 0x0CAF
+
+
+   def is_kn(c):
+       return 0x0C80 <= ord(c) <= 0x0CFF
+
+
+   def broken_signs(t):
+       """G1: offsets of a vowel sign, virama, nukta, anusvara or visarga that has no letter to sit on.
+
+       ಆ್ಯ (vowel + virama + ಯ) is the standard spelling of the English "a" sound (ಆ್ಯಪ್) and is not counted.
+       A visarga after a virama is a colon turned into a visarga (G4), not a broken sign.
+       """
+       out = []
+       for i, ch in enumerate(t):
+           o = ord(ch)
+           p = ord(t[i - 1]) if i else 0
+           nx = ord(t[i + 1]) if i + 1 < len(t) else 0
+           if o == VIRAMA_CP and p in VOWELS_BEFORE_YA and nx == YA:
+               continue
+           if o in KN_MATRA or o == VIRAMA_CP or o == NUKTA_CP:
+               if p not in KN_CONS and p != NUKTA_CP:
+                   out.append(i)
+           elif o == ANUSVARA_CP:
+               if not (i and is_kn(t[i - 1])) or p == VIRAMA_CP:
+                   out.append(i)
+           elif o == VISARGA_CP:
+               if not (i and is_kn(t[i - 1])):
+                   out.append(i)
+           elif o in LEN_MARKS:
+               if p not in (0x0CBF, 0x0CC6, 0x0CCA):
+                   out.append(i)
+       return out
+
+
+   def heavy_broken_signs(t, min_count=3):
+       """G1: drop a document with min_count or more vowel signs or viramas that have no letter to sit on."""
+       return len(broken_signs(t)) >= min_count
+
+
+   def medicine_g1(text):
+       """The G1 rule, under the name that the harm tests look for: True drops the document."""
+       return heavy_broken_signs(text)
+   ```
+
+3. **Action:** Drop. A document with one or two such signs is kept.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - Documents with one or two broken signs keep them. My labels show G1 in 32 documents; most are a misplaced reph (ಜಾಜ್ರ್ for ಜಾರ್ಜ್, ಮಾಚ್ರ್ for ಮಾರ್ಚ್) or a few lost vowel signs in PDF text, which I marked fix, not drop. The rule drops the 3 documents where the damage is dense.
+   - A text about Kannada spelling that shows a vowel sign on its own (ಾ) would count it.
+
+## Medicine 4: C5, lists of headlines, links or keywords
+
+1. **Disease:** C5. My labels: 10 of 500 labelled documents. In the whole pack the rule finds 3 of 500 documents; 3 of them are documents that I labelled C5. Some documents are not text but a list: related headlines, trending topics or a keyword list.
+   Three examples:
+   - `3af42c530ed0274e` at 0: 15 lines, the first `2020ರ ಒಲಿಂಪಿಕ್ಸ್ಗೆ ಕುಸ್ತಿಪಟು ಸುಶೀಲ್ ಅನುಮಾನ!`
+   - `62fe00fa46296335` at 0: 10 lines, the first `Welcome!`
+   - `abe132cfa2a7e98a` at 0: 26 lines, the first `- ದಿನದಿಂದ ದಿನಕ್ಕೆ ಕುಸಿದ ಕಲೆಕ್ಷನ್; 410 ಕೋಟಿ ಬಜ ...`
+
+2. **Medicine:** Drop a document with 8 or more lines when at least 80% of its text is in short lines (100 characters or less) that do not end with a full stop.
+
+   ```python
+   def headline_list(t, min_lines=8, share=0.8):
+       """C5: drop a document that is only a list: min_lines or more lines, and at least share of the text in short
+       lines (100 characters or less) that do not end with a full stop, as in a list of headlines."""
+       lines = [l.strip() for l in t.split("\n") if l.strip()]
+       if len(lines) < min_lines:
+           return False
+       short = [l for l in lines if len(l) <= 100 and not l.endswith(".")]
+       return sum(map(len, short)) >= share * sum(map(len, lines))
+
+
+   def medicine_c5(text):
+       """The C5 rule, under the name that the harm tests look for: True drops the document."""
+       return headline_list(text)
+   ```
+
+3. **Action:** Drop.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - A poem, a song or a short list-style notice with 8 or more lines would be dropped. Kannada verse lines have no full stop, so verse is the main risk; in this pack the rule drops no verse.
+   - A list with a few long lines, a list inside an article, or a keyword line at the end ('Key words: ...') is not caught. My labels show C5 in 10 documents and the rule finds 3 of them.
+
+## Medicine 5: D4, bad machine translation
+
+1. **Disease:** D4. My labels: 30 of 500 labelled documents. In the whole pack the rule finds 1 of 500 documents; 1 of them is a document that I labelled D4. Pages machine-translated into Kannada, mostly from Russian and English company, how-to and product pages: wrong word senses (ceiling fans as admirers, LED as 'led'), broken clauses, transliterated Russian words, and number placeholders of the translation engine.
+   Three examples:
+   - `76ab2e51b2167698` at 1205: `ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್`
+   - `de969a2be049f10a` at 1953: 'ಸಂಪೂರ್ಣ ಕೋಪವನ್ನು ಹೊಂದಿದ್ದೇವೆ' (from my labels; the rule does not find it)
+   - `263dcb1b5bef1054` at 559: 'ಇದು ಮ್ಯಾಟರ್ ಕ್ಲಾಯ್ಡೆಲ್ ರಾಜ್ಯವಾಗಿದೆ' (from my labels; the rule does not find it)
+
+2. **Medicine:** Drop a document with the number placeholder of a known translation engine (XNUMX, NUMX, or the same written in Kannada letters, such as ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್ or ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್), or with two or more English function words (is, the, of, and, to, ...) standing alone between Kannada words.
+
+   ```python
+   import re
+
+   NUM_PLACEHOLDER = re.compile("NUMX|XNUM|ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್|ಎಮ್ಎಕ್ಸ್ಎಕ್ಸ್|ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್|ಎಂಎನ್ಎಕ್ಸ್")
+   LONE_ENGLISH = re.compile("[ಀ-೿]+ (?:is|the|of|and|to|in|for|with|on|a|an|are|was) [ಀ-೿]+")
+
+
+   def mt_traces(t):
+       """D4: drop a document with traces of a translation engine: the number placeholder of a known engine
+       (XNUMX, written in Kannada letters as ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್ or ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್), or two or more English function words
+       left alone between Kannada words."""
+       return bool(NUM_PLACEHOLDER.search(t)) or len(LONE_ENGLISH.findall(t)) >= 2
+
+
+   def medicine_d4(text):
+       """The D4 rule, under the name that the harm tests look for: True drops the document."""
+       return mt_traces(text)
+   ```
+
+3. **Action:** Drop.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - The rule is weak: my labels show D4 in 30 documents and it finds 1 of them. Most bad translation shows only in the meaning. A scale filter needs a model, for example the perplexity of a Kannada language model or a round-trip translation score; I give the rule as a safe first step.
+   - A Kannada text that quotes an English title with 'of' or 'the' in two places would be dropped.
+
+## Medicine 6: G4, visarga written for a colon, and the split dot
 
 1. **Disease:** G4. My labels: 270 of 500 labelled documents. In the whole pack the rule finds 267 of 500 documents (620 visargas and dots); 266 of them are documents that I labelled G4. An earlier cleaning step turned ':' after a Kannada letter into the visarga 'ಃ' (for example the Indic NLP normaliser, correct_visarga), and put a space after the dot inside numbers and web addresses (3. 3 ಬಿಲಿಯನ್, 10. 20ಕ್ಕೆ, newskadaba. com). I file both under G4, damage from earlier cleaning.
    In this pack a colon never follows a Kannada letter directly (0 times), a colon after a space or a digit appears 182 times, and a visarga follows a virama 33 times, which Kannada spelling never does.
@@ -147,6 +378,11 @@ def clean(t):
    def fix_over_normalised(t):
        """G4: undo the two marks of the earlier normaliser: visarga for a colon, then the dot split."""
        return fix_dot_split(fix_visarga(t))
+
+
+   def medicine_g4(text):
+       """The G4 rule, under the name that the harm tests look for: returns the fixed text."""
+       return fix_over_normalised(text)
    ```
 
 3. **Action:** Fix: replace each such visarga with ':' and remove the space after each such dot.
@@ -160,7 +396,47 @@ def clean(t):
    - A text that uses ಃ as a colon on purpose would be changed.
    - The dot rule would also join two sentences when one ends in a number and the next starts with a number on the same line ('... 2019ರಲ್ಲಿ 10. 20 ಜನ'). I did not see this in the pack.
 
-## Medicine 2: C1, boilerplate lines
+## Medicine 7: A6, look-alike characters for Kannada signs
+
+1. **Disease:** A6. My labels: 19 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (37 characters); 15 of them are documents that I labelled A6. Text typed or converted from PDF uses a look-alike character for a Kannada sign: the Kannada digit zero ೦ (U+0CE6) or the ASCII digit 0 for the anusvara ಂ (U+0C82), as in ಇ೦ಥಾ and ಸಂಭ0ದ, and the Latin letter s for the avagraha ಽ (U+0CBD) in Sanskrit, as in ತಮೋsಧ್ಯಾಯಃ.
+   Three examples:
+   - `0fddd312da4d1f53` at 702: `ಸಂಭ0ದದಲ್ಲಿ` → `ಸಂಭಂದದಲ್ಲಿ` (0030 → 0C82)
+   - `af897fd315bd2a8b` at 1150: `ಬ೦ದ` → `ಬಂದ` (0CE6 → 0C82)
+   - `9f746e71dabdd692` at 385: `ತದ್ಧರ್ಮ೦` → `ತದ್ಧರ್ಮಂ` (0CE6 → 0C82)
+
+2. **Medicine:** Replace a Kannada digit zero that comes right after a Kannada letter or vowel sign, and is not followed by another Kannada digit, with the anusvara. Replace an ASCII 0 that sits between a Kannada letter or vowel sign and a Kannada consonant with the anusvara. Replace a Latin s between two Kannada characters with the avagraha.
+
+   ```python
+   import re
+
+   KN_SIGNED = "ಅ-ಹಾ-ೌ"                 # Kannada vowels, consonants and vowel signs
+   ZERO_KN = re.compile(f"(?<=[{KN_SIGNED}])೦(?![೦-೯])")
+   ZERO_ASCII = re.compile(f"(?<=[{KN_SIGNED}])0(?=[ಕ-ಹ])")
+   LATIN_S = re.compile("(?<=[ಀ-೿])s(?=[ಀ-೿])")
+
+
+   def fix_lookalikes(t):
+       """A6: a Kannada digit zero (೦) or an ASCII 0 right after a Kannada letter is the anusvara (ಂ); a Latin s
+       between Kannada letters is the avagraha (ಽ)."""
+       t = ZERO_KN.sub("ಂ", t)
+       t = ZERO_ASCII.sub("ಂ", t)
+       return LATIN_S.sub("ಽ", t)
+
+
+   def medicine_a6(text):
+       """The A6 rule, under the name that the harm tests look for: returns the fixed text."""
+       return fix_lookalikes(text)
+   ```
+
+3. **Action:** Fix.
+
+4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
+
+5. **Side effects:**
+   - A number written in Kannada digits right after a word with no space (ಪುಟ೦) would change; I did not see this in the pack.
+   - Other look-alikes are not handled: a Latin l or a digit 1 in place of a letter in OCR text (lಳಿಸುತ್ತಾ), and English fragments left by a translation engine.
+
+## Medicine 8: C1, boilerplate lines
 
 1. **Disease:** C1. My labels: 197 of 500 labelled documents. In the whole pack the rule finds 97 of 500 documents (257 lines); 97 of them are documents that I labelled C1. News and blog pages left their page furniture in the text: the Oneindia link block ('Don't Miss!', '- News ...', '- 2 hrs ago ...', '- #tag ...'), 'ಇದನ್ನೂ ಓದಿ:' (also read) lines, the Prajavani 'follow us on Facebook' line, share and like prompts, desk lines, comment policies, breadcrumbs, bylines and Instagram embed lines.
    Three examples:
@@ -194,6 +470,11 @@ def clean(t):
        '- #tag ...'), 'ಇದನ್ನೂ ಓದಿ:' (also read), follow/share/like prompts, desk lines, comment policies, breadcrumbs
        and embed lines."""
        return "\n".join(l for l in t.split("\n") if not C1_LINE.match(l))
+
+
+   def medicine_c1(text):
+       """The C1 rule, under the name that the harm tests look for: returns the fixed text."""
+       return strip_boilerplate(text)
    ```
 
 3. **Action:** Fix: remove those lines.
@@ -206,105 +487,7 @@ def clean(t):
    - Boilerplate inside a line is not touched: a site name after the title ('... | Udayavani - ಉದಯವಾಣಿ', '- ಸವಿ ಕನ್ನಡ ನ್ಯೂಸ್'), a site name in the dateline ('ಧಾರವಾಡ prajakiran. com :'), PDF running headers and page footers. My labels show C1 in about twice as many documents as the rule finds; the rest needs site-by-site rules.
    - An article about Instagram that quotes 'A post shared by' would lose that line.
 
-## Medicine 3: C3, the text stops in the middle of a sentence
-
-1. **Disease:** C3. My labels: 32 of 500 labelled documents. In the whole pack the rule finds 22 of 500 documents (22 documents); 20 of them are documents that I labelled C3. The document was cut: the last line is prose that stops without a sentence end.
-   Three examples:
-   - `9044eb5731ca5bbb` at 568: the last line stops at `... ಪ್ತ ವಿದ್ವತ್ತನ್ನು ವರ್ಣಿಸಿದುದರ ಫಲವೇ ಅದೆಂದೂ`; the rule removes `⏎ಪುರುಷೋತ್ತಮನು ಆ ವರ್ಷ ಆ ತರಗತಿಯಿಂದ ತೇರ್ಗಡೆ ...`
-   - `911d5a63a36beb09` at 1231: the last line stops at `... ಿರಲುತತ್ಪಾದಸೇವಿತರಾದಶಿ ವತ್ಸಗೋತ್ರದಆಪಸ್ತಂಭಸೂ`; the rule removes `⏎ವಿಜಯಾಭ್ಯುದಯ ಶಾಲಿವಾಹನಶಕವ ರ್ಷಂಗಳು ೧೬೦ ರಮೇ ...`
-   - `7f58502a21c86228` at 6727: the last line stops at `... ಂಗಳಿನೋಡಿ ಮರಣಭಯಗ್ರಸ್ತನಾಗಿ ಕಂಸನು ಚಿಂತೆಯಿಂದ`; the rule removes `⏎ರು |೨೫| ಕಂಸನು ರಾಮಕೃಷ್ಣರಿಂದ ಮಾಡಲ್ಪಟ್ಟ ರಾ ...`
-
-2. **Medicine:** When the text does not end with a sentence end (. ? ! । ॥ | a closing quote or bracket, ':', a digit), and its last line has 40 characters or more, cut the last line back to its last full stop. When that line has no full stop, remove the line.
-
-   ```python
-   SENTENCE_END = set(".?!।॥|\"'”’)»…:ಃ")
-
-
-   def cut_unfinished_end(t, min_line=40):
-       """C3: when the last line is prose (min_line characters or more) that stops without a sentence end, cut it
-       back to its last full stop, or remove the line when it has none."""
-       s = t.rstrip()
-       if not s or s[-1] in SENTENCE_END or s[-1].isdigit():
-           return t
-       last = s.split("\n")[-1]
-       if len(last) < min_line:
-           return t
-       cut = max(last.rfind(c) for c in ".?!।")
-       return (s[: len(s) - len(last)] + (last[: cut + 1] if cut >= 0 else "")).rstrip()
-   ```
-
-3. **Action:** Fix: remove the unfinished sentence.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - A last line that is a list or an address with no full stop is cut (a press-office address in c713689df252717f; a keyword list in 7b1751ffb7f20ff0).
-   - A cut that ends on a full stop by chance, a dangling heading, or a short last line is not caught.
-   - A text that starts in the middle of a sentence is not touched.
-
-## Medicine 4: B4, a literal backslash-n in the text
-
-1. **Disease:** B4. My labels: 19 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (309 backslash-n); 15 of them are documents that I labelled B4. The two characters '\' and 'n' stand where a line break should be. The text was escaped twice.
-   Three examples:
-   - `3db23e9e76ca858e` at 81: `ಕನ್ನಡ ನ್ಯೂಸ್\nಮೈಸೂರುಃ ಚಾಮು` (the two characters 005C 006E)
-   - `cac1e9c1e7750da3` at 108: `anet Kannada\nಮುಖಪುಟ » ಸ್ಥ` (the two characters 005C 006E)
-   - `76ab2e51b2167698` at 66: `ಗಳು | AASraw\n/ಬ್ಲಾಗ್/ಗ್ಯಾ` (the two characters 005C 006E)
-
-2. **Medicine:** Replace every backslash-n (two characters) with a real line break.
-
-   ```python
-   BS = chr(92)
-
-
-   def fix_literal_newline(t):
-       """B4: a literal backslash-n (two characters) becomes a real newline."""
-       return t.replace(BS + "n", "\n")
-   ```
-
-3. **Action:** Fix.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - A text about programming that shows \n on purpose would change.
-   - A literal \t or \r is not handled.
-
-## Medicine 5: A6, look-alike characters for Kannada signs
-
-1. **Disease:** A6. My labels: 19 of 500 labelled documents. In the whole pack the rule finds 15 of 500 documents (37 characters); 15 of them are documents that I labelled A6. Text typed or converted from PDF uses a look-alike character for a Kannada sign: the Kannada digit zero ೦ (U+0CE6) or the ASCII digit 0 for the anusvara ಂ (U+0C82), as in ಇ೦ಥಾ and ಸಂಭ0ದ, and the Latin letter s for the avagraha ಽ (U+0CBD) in Sanskrit, as in ತಮೋsಧ್ಯಾಯಃ.
-   Three examples:
-   - `0fddd312da4d1f53` at 702: `ಸಂಭ0ದದಲ್ಲಿ` → `ಸಂಭಂದದಲ್ಲಿ` (0030 → 0C82)
-   - `af897fd315bd2a8b` at 1150: `ಬ೦ದ` → `ಬಂದ` (0CE6 → 0C82)
-   - `9f746e71dabdd692` at 385: `ತದ್ಧರ್ಮ೦` → `ತದ್ಧರ್ಮಂ` (0CE6 → 0C82)
-
-2. **Medicine:** Replace a Kannada digit zero that comes right after a Kannada letter or vowel sign, and is not followed by another Kannada digit, with the anusvara. Replace an ASCII 0 that sits between a Kannada letter or vowel sign and a Kannada consonant with the anusvara. Replace a Latin s between two Kannada characters with the avagraha.
-
-   ```python
-   import re
-
-   KN_SIGNED = "ಅ-ಹಾ-ೌ"                 # Kannada vowels, consonants and vowel signs
-   ZERO_KN = re.compile(f"(?<=[{KN_SIGNED}])೦(?![೦-೯])")
-   ZERO_ASCII = re.compile(f"(?<=[{KN_SIGNED}])0(?=[ಕ-ಹ])")
-   LATIN_S = re.compile("(?<=[ಀ-೿])s(?=[ಀ-೿])")
-
-
-   def fix_lookalikes(t):
-       """A6: a Kannada digit zero (೦) or an ASCII 0 right after a Kannada letter is the anusvara (ಂ); a Latin s
-       between Kannada letters is the avagraha (ಽ)."""
-       t = ZERO_KN.sub("ಂ", t)
-       t = ZERO_ASCII.sub("ಂ", t)
-       return LATIN_S.sub("ಽ", t)
-   ```
-
-3. **Action:** Fix.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - A number written in Kannada digits right after a word with no space (ಪುಟ೦) would change; I did not see this in the pack.
-   - Other look-alikes are not handled: a Latin l or a digit 1 in place of a letter in OCR text (lಳಿಸುತ್ತಾ), and English fragments left by a translation engine.
-
-## Medicine 6: C2, the same line twice in one document
+## Medicine 9: C2, the same line twice in one document
 
 1. **Disease:** C2. My labels: 34 of 500 labelled documents. In the whole pack the rule finds 11 of 500 documents (23 lines); 10 of them are documents that I labelled C2. News pages often repeat the opening paragraph at the end, or a heading twice.
    Three examples:
@@ -324,6 +507,11 @@ def clean(t):
                continue
            seen.add(k); out.append(l)
        return "\n".join(out)
+
+
+   def medicine_c2(text):
+       """The C2 rule, under the name that the harm tests look for: returns the fixed text."""
+       return dedupe_lines(text)
    ```
 
 3. **Action:** Fix: remove the repeats.
@@ -334,7 +522,7 @@ def clean(t):
    - Song refrains, poems and lists that repeat a line on purpose lose the repeats. In this pack: the coach list of two trains that have the same coaches (f8849202ab1a46be).
    - A repeat with a small change (for example a dateline in front) is not caught, nor a repeated sentence inside a longer line. My labels show C2 in about three times as many documents.
 
-## Medicine 7: C4, two texts joined
+## Medicine 10: C4, two texts joined
 
 1. **Disease:** C4. My labels: 20 of 500 labelled documents. In the whole pack the rule finds 6 of 500 documents (6 documents); 6 of them are documents that I labelled C4. Two unrelated texts stand in one document with no boundary. In this pack: news roundups and tag pages with many unrelated teasers, two blog posts joined, and an English source story or summary joined to the end of the Kannada story. I count the English block as a joined text even when it covers the same story: it is a second text in another language with no boundary.
    Three examples:
@@ -362,6 +550,11 @@ def clean(t):
        if len(tail.strip()) >= min_chars and len(head.strip()) >= 200 and latin_share(head) < 0.3:
            return head.rstrip()
        return t
+
+
+   def medicine_c4(text):
+       """The C4 rule, under the name that the harm tests look for: returns the fixed text."""
+       return cut_english_tail(text)
    ```
 
 3. **Action:** Fix: remove the English block.
@@ -373,126 +566,46 @@ def clean(t):
    - Roundups and tag pages of unrelated Kannada stories are not caught. My labels show C4 in 17 documents and the rule finds 3 of them; the rest needs a reader or a topic-shift model.
    - A Kannada article that ends with a long English quote would lose the quote.
 
-## Medicine 8: A3, leftover characters of an old Kannada font
+## Medicine 11: C3, the text stops in the middle of a sentence
 
-1. **Disease:** A3. My labels: 10 of 500 labelled documents. In the whole pack the rule finds 6 of 500 documents; 6 of them are documents that I labelled A3. Some pages were typed in an ASCII font (Nudi or Baraha) and converted to Unicode only in part. Latin letters such as ø, ä, Ç and É are left inside Kannada words.
+1. **Disease:** C3. My labels: 32 of 500 labelled documents. In the whole pack the rule finds 22 of 500 documents (22 documents); 20 of them are documents that I labelled C3. The document was cut: the last line is prose that stops without a sentence end.
    Three examples:
-   - `f1ee75f8842c24c6` at 527: `ಸ್ಕೊ$್ವಟ್ರ್ಸೊವ್` (residue 0024 '$')
-   - `7a99953536fb30ba` at 1051: `ಸಾಂಸ್ಕøತಿಕ` (residue 00F8 'ø')
-   - `c84d7b1e2256670e` at 1064: `ನಿಟ್ಟಿನÇÉೇ` (residue 00C7 'Ç')
+   - `9044eb5731ca5bbb` at 568: the last line stops at `... ಪ್ತ ವಿದ್ವತ್ತನ್ನು ವರ್ಣಿಸಿದುದರ ಫಲವೇ ಅದೆಂದೂ`; the rule removes `⏎ಪುರುಷೋತ್ತಮನು ಆ ವರ್ಷ ಆ ತರಗತಿಯಿಂದ ತೇರ್ಗಡೆ ...`
+   - `911d5a63a36beb09` at 1231: the last line stops at `... ಿರಲುತತ್ಪಾದಸೇವಿತರಾದಶಿ ವತ್ಸಗೋತ್ರದಆಪಸ್ತಂಭಸೂ`; the rule removes `⏎ವಿಜಯಾಭ್ಯುದಯ ಶಾಲಿವಾಹನಶಕವ ರ್ಷಂಗಳು ೧೬೦ ರಮೇ ...`
+   - `7f58502a21c86228` at 6727: the last line stops at `... ಂಗಳಿನೋಡಿ ಮರಣಭಯಗ್ರಸ್ತನಾಗಿ ಕಂಸನು ಚಿಂತೆಯಿಂದ`; the rule removes `⏎ರು |೨೫| ಕಂಸನು ರಾಮಕೃಷ್ಣರಿಂದ ಮಾಡಲ್ಪಟ್ಟ ರಾ ...`
 
-2. **Medicine:** Drop a document when a Kannada word holds a Latin-1 or Latin Extended letter, or a '$' directly before a Kannada vowel sign or virama. IAST letters (ā, ṇ, ś) do not count, and neither do '$100ರಷ್ಟು' or '30°ಸೆ'.
+2. **Medicine:** When the text does not end with a sentence end (. ? ! । ॥ | a closing quote or bracket, ':', a digit), and its last line has 40 characters or more, cut the last line back to its last full stop. When that line has no full stop, remove the line.
 
    ```python
-   try:
-       from kn_rules import legacy_residue   # when this block runs on its own
-   except ImportError:
-       pass   # the whole sheet: legacy_residue is in the appendix at the end
+   SENTENCE_END = set(".?!।॥|\"'”’)»…:ಃ")
 
 
-   def has_legacy(t):
-       """A3: drop a document with legacy-font (Nudi/Baraha) residue inside Kannada words."""
-       return bool(legacy_residue(t))
+   def cut_unfinished_end(t, min_line=40):
+       """C3: when the last line is prose (min_line characters or more) that stops without a sentence end, cut it
+       back to its last full stop, or remove the line when it has none."""
+       s = t.rstrip()
+       if not s or s[-1] in SENTENCE_END or s[-1].isdigit():
+           return t
+       last = s.split("\n")[-1]
+       if len(last) < min_line:
+           return t
+       cut = max(last.rfind(c) for c in ".?!।")
+       return (s[: len(s) - len(last)] + (last[: cut + 1] if cut >= 0 else "")).rstrip()
+
+
+   def medicine_c3(text):
+       """The C3 rule, under the name that the harm tests look for: returns the fixed text."""
+       return cut_unfinished_end(text)
    ```
 
-3. **Action:** Drop. The way back from these fonts depends on the font, so a safe fix is not possible.
+3. **Action:** Fix: remove the unfinished sentence.
 
 4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
 
 5. **Side effects:**
-   - A good document with a single leftover letter is lost.
-   - A foreign name with an accent glued to a Kannada suffix (Peléಗೆ) drops the document.
-
-## Medicine 9: G1, vowel signs cut off from their letter
-
-1. **Disease:** G1. My labels: 32 of 500 labelled documents. In the whole pack the rule finds 3 of 500 documents; 3 of them are documents that I labelled G1. In some documents a vowel sign or virama stands with no letter before it: a reph in the wrong place, or a letter lost when the text was taken out of a PDF.
-   Three examples:
-   - `c245d243cb8e3428` at 20: `ಾಯಾಗ್ರಹಣ` (0079 0020 0CBE)
-   - `c84d7b1e2256670e` at 1066: `ನಿಟ್ಟಿನÇÉೇ` (00C7 00C9 0CC7)
-   - `9f746e71dabdd692` at 1561: `ವಿಶೇಷವಾದರ್ಷಾಾಂ` (0CB7 0CBE 0CBE)
-
-2. **Medicine:** Count the vowel signs, viramas, nuktas, anusvaras and visargas that have no letter to sit on. ಆ್ಯ, the standard spelling of the English 'a' sound (ಆ್ಯಪ್), does not count. Drop a document with 3 or more.
-
-   ```python
-   try:
-       from kn_rules import broken_signs   # when this block runs on its own
-   except ImportError:
-       pass   # the whole sheet: broken_signs is in the appendix at the end
-
-
-   def heavy_broken_signs(t, min_count=3):
-       """G1: drop a document with min_count or more vowel signs or viramas that have no letter to sit on."""
-       return len(broken_signs(t)) >= min_count
-   ```
-
-3. **Action:** Drop. A document with one or two such signs is kept.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - Documents with one or two broken signs keep them. My labels show G1 in 32 documents; most are a misplaced reph (ಜಾಜ್ರ್ for ಜಾರ್ಜ್, ಮಾಚ್ರ್ for ಮಾರ್ಚ್) or a few lost vowel signs in PDF text, which I marked fix, not drop. The rule drops the 3 documents where the damage is dense.
-   - A text about Kannada spelling that shows a vowel sign on its own (ಾ) would count it.
-
-## Medicine 10: C5, lists of headlines, links or keywords
-
-1. **Disease:** C5. My labels: 10 of 500 labelled documents. In the whole pack the rule finds 3 of 500 documents; 3 of them are documents that I labelled C5. Some documents are not text but a list: related headlines, trending topics or a keyword list.
-   Three examples:
-   - `3af42c530ed0274e` at 0: 15 lines, the first `2020ರ ಒಲಿಂಪಿಕ್ಸ್ಗೆ ಕುಸ್ತಿಪಟು ಸುಶೀಲ್ ಅನುಮಾನ!`
-   - `62fe00fa46296335` at 0: 10 lines, the first `Welcome!`
-   - `abe132cfa2a7e98a` at 0: 26 lines, the first `- ದಿನದಿಂದ ದಿನಕ್ಕೆ ಕುಸಿದ ಕಲೆಕ್ಷನ್; 410 ಕೋಟಿ ಬಜ ...`
-
-2. **Medicine:** Drop a document with 8 or more lines when at least 80% of its text is in short lines (100 characters or less) that do not end with a full stop.
-
-   ```python
-   def headline_list(t, min_lines=8, share=0.8):
-       """C5: drop a document that is only a list: min_lines or more lines, and at least share of the text in short
-       lines (100 characters or less) that do not end with a full stop, as in a list of headlines."""
-       lines = [l.strip() for l in t.split("\n") if l.strip()]
-       if len(lines) < min_lines:
-           return False
-       short = [l for l in lines if len(l) <= 100 and not l.endswith(".")]
-       return sum(map(len, short)) >= share * sum(map(len, lines))
-   ```
-
-3. **Action:** Drop.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - A poem, a song or a short list-style notice with 8 or more lines would be dropped. Kannada verse lines have no full stop, so verse is the main risk; in this pack the rule drops no verse.
-   - A list with a few long lines, a list inside an article, or a keyword line at the end ('Key words: ...') is not caught. My labels show C5 in 10 documents and the rule finds 3 of them.
-
-## Medicine 11: D4, bad machine translation
-
-1. **Disease:** D4. My labels: 30 of 500 labelled documents. In the whole pack the rule finds 1 of 500 documents; 1 of them is a document that I labelled D4. Pages machine-translated into Kannada, mostly from Russian and English company, how-to and product pages: wrong word senses (ceiling fans as admirers, LED as 'led'), broken clauses, transliterated Russian words, and number placeholders of the translation engine.
-   Three examples:
-   - `76ab2e51b2167698` at 1205: `ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್`
-   - `de969a2be049f10a` at 1953: 'ಸಂಪೂರ್ಣ ಕೋಪವನ್ನು ಹೊಂದಿದ್ದೇವೆ' (from my labels; the rule does not find it)
-   - `263dcb1b5bef1054` at 559: 'ಇದು ಮ್ಯಾಟರ್ ಕ್ಲಾಯ್ಡೆಲ್ ರಾಜ್ಯವಾಗಿದೆ' (from my labels; the rule does not find it)
-
-2. **Medicine:** Drop a document with the number placeholder of a known translation engine (XNUMX, NUMX, or the same written in Kannada letters, such as ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್ or ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್), or with two or more English function words (is, the, of, and, to, ...) standing alone between Kannada words.
-
-   ```python
-   import re
-
-   NUM_PLACEHOLDER = re.compile("NUMX|XNUM|ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್|ಎಮ್ಎಕ್ಸ್ಎಕ್ಸ್|ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್|ಎಂಎನ್ಎಕ್ಸ್")
-   LONE_ENGLISH = re.compile("[ಀ-೿]+ (?:is|the|of|and|to|in|for|with|on|a|an|are|was) [ಀ-೿]+")
-
-
-   def mt_traces(t):
-       """D4: drop a document with traces of a translation engine: the number placeholder of a known engine
-       (XNUMX, written in Kannada letters as ಎಕ್ಸ್ಎನ್ಎಕ್ಸ್ or ಎಮ್ಎಮ್ಎನ್ಎಕ್ಸ್), or two or more English function words
-       left alone between Kannada words."""
-       return bool(NUM_PLACEHOLDER.search(t)) or len(LONE_ENGLISH.findall(t)) >= 2
-   ```
-
-3. **Action:** Drop.
-
-4. **Harm test:** on the gold set (30 documents) it changes 0 and drops 0: 0.0%. Pass (1% or less).
-
-5. **Side effects:**
-   - The rule is weak: my labels show D4 in 30 documents and it finds 1 of them. Most bad translation shows only in the meaning. A scale filter needs a model, for example the perplexity of a Kannada language model or a round-trip translation score; I give the rule as a safe first step.
-   - A Kannada text that quotes an English title with 'of' or 'the' in two places would be dropped.
+   - A last line that is a list or an address with no full stop is cut (a press-office address in c713689df252717f; a keyword list in 7b1751ffb7f20ff0).
+   - A cut that ends on a full stop by chance, a dangling heading, or a short last line is not caught.
+   - A text that starts in the middle of a sentence is not touched.
 
 ## Medicine 12: D3, Kannada and another language mixed
 
@@ -508,6 +621,11 @@ def clean(t):
    def keep_mixed(t):
        """D3: no medicine. Kannada-English mixing is natural; the brief says label it, do not judge it."""
        return t
+
+
+   def medicine_d3(text):
+       """The D3 rule, under the name that the harm tests look for: returns the text unchanged."""
+       return keep_mixed(text)
    ```
 
 3. **Action:** Keep (no change).
@@ -516,111 +634,3 @@ def clean(t):
 
 5. **Side effects:**
    - None: the rule changes nothing. A mixed document that also has another disease is handled by the medicine for that disease.
-
-## Appendix: helper functions (kn_rules.py)
-
-```python
-"""Kannada character rules shared by the detectors and the medicines.
-
-No dependencies, so a function can be copied into medicine.md as it is.
-"""
-import re
-
-KN_CONS = set(range(0x0C95, 0x0CBA)) | {0x0CDE}         # consonants
-KN_MATRA = set(range(0x0CBE, 0x0CCD))                   # dependent vowel signs
-VIRAMA, NUKTA, ANUSVARA, VISARGA = 0x0CCD, 0x0CBC, 0x0C82, 0x0C83
-LEN_MARKS = {0x0CD5, 0x0CD6}
-VOWELS_BEFORE_YA = {0x0C85, 0x0C86, 0x0C8E}             # ಅ ಆ ಎ, as in ಆ್ಯಪ್
-YA = 0x0CAF
-IAST = set("āīūṛṝḷṅñṇṭḍśṣḥṁĀĪŪṚṄÑṆṬḌŚṢḤṀ")              # romanised Indic, not legacy-font residue
-DANDAS = {"।", "॥"}
-
-def is_kn(c):
-    return 0x0C80 <= ord(c) <= 0x0CFF
-
-def script_counts(t):
-    """Count letters by script. Every character of the Kannada block counts as Kannada."""
-    c = {"kn": 0, "te": 0, "deva": 0, "ml": 0, "ta": 0, "latin": 0, "other": 0}
-    for ch in t:
-        o = ord(ch)
-        if 0x0C80 <= o <= 0x0CFF: c["kn"] += 1
-        elif 0x0C00 <= o <= 0x0C7F: c["te"] += 1
-        elif 0x0900 <= o <= 0x097F and ch not in DANDAS: c["deva"] += 1
-        elif 0x0D00 <= o <= 0x0D7F: c["ml"] += 1
-        elif 0x0B80 <= o <= 0x0BFF: c["ta"] += 1
-        elif ch.isascii() and ch.isalpha(): c["latin"] += 1
-        elif ch.isalpha(): c["other"] += 1
-    return c
-
-def kannada_share(t):
-    """The share of letters that are Kannada (0.0 to 1.0)."""
-    c = script_counts(t)
-    n = sum(c.values())
-    return c["kn"] / n if n else 0.0
-
-def broken_signs(t):
-    """G1: offsets of a vowel sign, virama, nukta, anusvara or visarga that has no letter to sit on.
-
-    ಆ್ಯ (vowel + virama + ಯ) is the standard spelling of the English "a" sound (ಆ್ಯಪ್) and is not counted.
-    A visarga after a virama is a colon turned into a visarga (G4), not a broken sign.
-    """
-    out = []
-    for i, ch in enumerate(t):
-        o = ord(ch)
-        p = ord(t[i - 1]) if i else 0
-        nx = ord(t[i + 1]) if i + 1 < len(t) else 0
-        if o == VIRAMA and p in VOWELS_BEFORE_YA and nx == YA:
-            continue
-        if o in KN_MATRA or o == VIRAMA or o == NUKTA:
-            if p not in KN_CONS and p != NUKTA:
-                out.append(i)
-        elif o == ANUSVARA:
-            if not (i and is_kn(t[i - 1])) or p == VIRAMA:
-                out.append(i)
-        elif o == VISARGA:
-            if not (i and is_kn(t[i - 1])):
-                out.append(i)
-        elif o in LEN_MARKS:
-            if p not in (0x0CBF, 0x0CC6, 0x0CCA):
-                out.append(i)
-    return out
-
-def legacy_residue(t):
-    """A3: offsets of legacy-font (Nudi/Baraha) residue inside Kannada words.
-
-    Residue is a Latin-1 or Latin Extended letter inside a word that also holds Kannada (ಸಂಸ್ಕøತಿ), or a '$'
-    directly before a Kannada vowel sign or virama (ಸ್ಕೊ$್ವ). A '$' before a digit ($100ರಷ್ಟು), a degree
-    sign (30°ಸೆ) and IAST letters are not residue.
-    """
-    out = []
-    for m in re.finditer(r"\S+", t):
-        w = m.group()
-        if not any(is_kn(c) for c in w):
-            continue
-        for k, c in enumerate(w):
-            nxt = w[k + 1] if k + 1 < len(w) else " "
-            if c.isalpha() and 0xC0 <= ord(c) <= 0x24F and c not in IAST:
-                out.append(m.start() + k)
-            elif c == "$" and is_kn(nxt) and not nxt.isalpha():
-                out.append(m.start() + k)
-    return out
-```
-
-The rules by disease code, in the run order of `clean()`, for Data A's `harm_test.py` and `medicine_extract.py`:
-
-```python
-RULES = {
-    "B4": fix_literal_newline,
-    "A3": has_legacy,
-    "G1": heavy_broken_signs,
-    "C5": headline_list,
-    "D4": mt_traces,
-    "G4": fix_over_normalised,
-    "A6": fix_lookalikes,
-    "C1": strip_boilerplate,
-    "C2": dedupe_lines,
-    "C4": cut_english_tail,
-    "C3": cut_unfinished_end,
-    "D3": keep_mixed,
-}
-```
