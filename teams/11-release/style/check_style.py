@@ -19,6 +19,7 @@ is left out because it is too common. List markers such as "1." are not numbers.
 Rule 1 of public_internal.md says the date of an update and the week number need no approval, so --numbers skips
 "week 1" and a date up to the update's date ("31 Oct 2026", "24 Oct to 31 Oct 2026", "24 to 31 Oct 2026").
 The update's date is the date on its "Date:" line, or today. A later date is still listed: a future date needs approval.
+A pull request number such as "#6" is a name, not a count, so --numbers skips it too.
 Banned words are not checked inside code blocks, inline code, URLs and link targets.
 The phrases in ALLOWED (such as "magic number") are not banned-word errors.
 Em-dashes, en-dashes and emails are checked everywhere.
@@ -57,6 +58,7 @@ WEEK = re.compile(r"\bweek \d+\b", re.IGNORECASE)
 # DD Mon YYYY, or a range that ends in one: "24 Oct to 31 Oct 2026", "24 to 31 Oct 2026"
 DATE = re.compile(r"(?<![\w.])(?:\d{1,2}(?: " + MON + r")? to )?(\d{1,2}) " + MON + r" (\d{4})(?!\w)")
 DATE_LINE = re.compile(r"^\W*Date:\W*(\d{1,2}) " + MON + r" (\d{4})(?!\w)", re.MULTILINE)
+PR = re.compile(r"(?<![\w&])#\d+\b")   # a pull request or issue number, such as the sources in the review record
 
 def as_date(day, mon, year):
     try:
@@ -152,6 +154,7 @@ def check_text(text, max_words=25, numbers=False):
             marker = re.match(r"\s*\d+[.)](?=\s)", line)   # a list marker, not a number
             free = [m.span() for m in WEEK.finditer(line)]   # Rule 1: the week number and past dates need no approval
             free += [m.span() for m in DATE.finditer(line) if (d := as_date(*m.groups()[-3:])) and d <= until]
+            free += [m.span() for m in PR.finditer(line)]   # a pull request number is a name, not a count
             for m in NUMBER.finditer(line):
                 if marker and m.start() < marker.end(): continue
                 if any(a <= m.start() < b for a, b in free): continue
@@ -207,10 +210,11 @@ def self_test():
     ok = ok and nums == ["200", "twelve"]
     print(f"self-test: --numbers on '1. At step 200, twelve teams met.' finds {nums} (want ['200', 'twelve'])")
     update = ("**Date:** 31 Oct 2026\n**Period:** 24 Oct to 31 Oct 2026\n\n"
-              "In week 1 we read 300 pages from 24 to 30 Oct 2026. We meet again on 7 Dec 2026.\n")
+              "In week 1 we read 300 pages from 24 to 30 Oct 2026 (see #6). We meet again on 7 Dec 2026.\n")
     nums = re.findall(r"number '([^']+)'", " ".join(x[3] for x in check_text(update, numbers=True)))
     ok = ok and nums == ["300", "7", "2026"]
-    print(f"self-test: --numbers skips the week number and dates up to the update's date, finds {nums} (want ['300', '7', '2026'])")
+    print(f"self-test: --numbers skips the week number, pull request numbers and dates up to the update's date, "
+          f"finds {nums} (want ['300', '7', '2026'])")
     table = len(check_text("| " + " | ".join(["word " * 10] * 4) + "|\n"))
     ok = ok and table == 0
     print(f"self-test: a table row of four 10-word cells gives {table} errors")
